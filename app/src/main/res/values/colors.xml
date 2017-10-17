@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#505050</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#bec1b7</color>
+    <color name="colorBackGround">#969792</color>
+    <color name="colorBackGroundNew">#61615c</color>
+    <color name="colorBackGroundNewForManya">#464642</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorOne">#bf6b6b</color>
+    <color name="colorTwo">#dfa061</color>
+    <color name="colorThree">#dfe67d</color>
+    <color name="colorFour">#95ba77</color>
+    <color name="colorFive">#72b3ca</color>
+    <color name="colorSix">#525fe7</color>
+    <color name="colorSeven">#9670b6</color>
+    <color name="colorEight">#f181e5</color>
+    <color name="colorNine">#6253b7</color>
+    <color name="colorTen">#497b5d</color>
+    <color name="colorEleven">#ffffff</color>
+    <color name="colorTwelve">#5e5d5d</color>
+</resources>

@@ -1,0 +1,55 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="@string/default_notification_label"
+        android:inputType="textCapWords"
+        android:key="label_text"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Label" />
+
+    <ListPreference
+        android:defaultValue="-1"
+        android:entries="@array/pref_example_list_titles"
+        android:entryValues="@array/pref_example_list_values"
+        android:key="meters_list_pref"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_title_meters_list" />
+
+    <ListPreference
+        android:defaultValue="-1"
+        android:entries="@array/pref_example_list_titles"
+        android:entryValues="@array/pref_example_list_values"
+        android:key="stats_list_pref"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_title_stats_list" />
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="0"
+        android:inputType="textCapWords"
+        android:key="range_max_text"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_max_display_name" />
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="0"
+        android:inputType="textCapWords"
+        android:key="range_min_text"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_min_display_name" />
+
+    <Preference android:title="Add rule"
+        android:key="@string/add_rule_button"
+        android:summary="add a rule with the selected attributes"/>
+
+</PreferenceScreen>
