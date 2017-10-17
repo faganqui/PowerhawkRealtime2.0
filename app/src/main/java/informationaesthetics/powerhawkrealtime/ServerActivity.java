@@ -38,14 +38,15 @@ import java.util.ArrayList;
 
 public class ServerActivity extends AppCompatActivity implements View.OnClickListener {
 
+    //Prefs
+    private static final String SHARED_PREFS = "POWERHAWK_URL_SAVED_PREFS";
+
     private static final String TAG = "msm";
     private static String USER_DISPLAY = "quinn.LoginActivity.user_email";
     private static String USER_ID = "quinn.LoginActivity.user_id";
 
     //cloud messaging token
     String token;
-    //Prefs
-    private static final String SHARED_PREFS = "POWERHAWK_URL_SAVED_PREFS";
 
     //intent key names
     private static final String get_url = "POWERHAWK_URL";
@@ -95,9 +96,8 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
 
         token = token.replace("", "/"); //trying to add slashes between each char see if it sends
 
-
-        Intent receive_notifications = new Intent(this, FirebaseMessageService.class);
-        startService(receive_notifications);
+        //Intent receive_notifications = new Intent(this, FirebaseMessageService.class);
+        //startService(receive_notifications);
 
         //get intent from login, check for previous saved data
         Intent received_intent = getIntent();
@@ -106,7 +106,7 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
         ServerIP = received_intent.getStringExtra(get_serverip);
         stringFromServer = received_intent.getStringExtra(get_string_input);
 
-        new connectToServer().execute(ServerIP, "sendtoken");
+        //new connectToServer().execute(ServerIP, "sendtoken");
 
         parseString(stringFromServer); // parses the sent string and sets up appropriate buttons
     }
@@ -156,6 +156,31 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
             }
         }
 
+    }
+
+    private void getAllSharedPrefs(String urlx){
+        //gets all the previously saved things from specified URL
+        SharedPreferences sharedPref = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
+        row_headers = sharedPref.getString(get_rows + urlx, "");
+        column_headers = sharedPref.getString(get_columns + urlx, "");
+        kwdindex = sharedPref.getInt(get_kwd + urlx, -1);
+        meter_title = sharedPref.getString(get_title + urlx, "");
+        if(initial_input == null || initial_input == ""){
+            initial_input = sharedPref.getString(get_init_input + urlx, "");
+        }
+    }
+
+    private void saveAllSharedPrefs(String urlx){
+        SharedPreferences sharedPref = this.getSharedPreferences(SHARED_PREFS,Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        editor.putString(get_rows + urlx, row_headers);
+        editor.putString(get_columns + urlx, column_headers);
+        editor.putInt(get_kwd + urlx, kwdindex);
+        editor.putString(get_title + urlx, meter_title);
+        editor.putString(get_init_input + urlx, initial_input);
+
+        editor.commit();
     }
 
     protected void setupButtons(String url, String kwd, String watts){
@@ -225,24 +250,36 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
         int lock = -1;
         readcount = 0;
 
-        if(url.contains("reactive")) {
-            while (readcount < 5){
-                if (lock != readcount) {
-                    lock = readcount;
-                    if (readcount < 5) {
-                        new ParseURL().execute("http://" + url.split("/")[2], "reactive");
+        SharedPreferences tempSp = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
+
+        String urlPlaceholder = url.split("\\^")[0];
+        String tempCheckIfBeenSaved = tempSp.getString((get_rows + urlPlaceholder), "");
+        if(tempCheckIfBeenSaved.equals("")) {
+            //first time setup we read row and column headers as well as meter_title
+            if (url.contains("reactive")) {
+                while (readcount < 5) {
+                    if (lock != readcount) {
+                        lock = readcount;
+                        if (readcount < 5) {
+                            new ParseURL().execute("http://" + url.split("/")[2], "reactive");
+                        }
+                    }
+                }
+            } else {
+                while (readcount < 5) {
+                    if (lock != readcount) {
+                        lock = readcount;
+                        if (readcount < 5) {
+                            new ParseURL().execute("http://" + url.split("/")[2], "");
+                        }
                     }
                 }
             }
-        }else{
-            while (readcount < 5) {
-                if (lock != readcount) {
-                    lock = readcount;
-                    if (readcount < 5) {
-                        new ParseURL().execute("http://" + url.split("/")[2], "");
-                    }
-                }
-            }
+            saveAllSharedPrefs(url);
+        } else {
+            //otherwise we just load it from Shared prefs
+            url = url.split("\\^")[0];
+            getAllSharedPrefs(url);
         }
 
         //add saved prefs for meter

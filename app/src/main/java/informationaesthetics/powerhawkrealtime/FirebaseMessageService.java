@@ -23,7 +23,6 @@ public class FirebaseMessageService extends FirebaseMessagingService {
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
         Log.d(TAG, "From: " + remoteMessage.getFrom());
-        Log.d(TAG, "DID WE FUCKING MAKE IT HERE HELLLLLOOOOOOO");
 
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
@@ -49,9 +48,8 @@ public class FirebaseMessageService extends FirebaseMessagingService {
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark_focused)
-                .setContentTitle("FCM Message")
-                .setContentText(messageBody)
+                .setSmallIcon(R.drawable.icon_official)
+                .setContentTitle("One of your notification rules was broken!")
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent);
