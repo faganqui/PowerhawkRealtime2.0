@@ -171,6 +171,7 @@ public class StartupActivity extends AppCompatActivity implements View.OnClickLi
                 //sends token to server
                 String temp_url = String.valueOf(url_input.getText());
                 readcount = 5;
+                newSharedPref(temp_url, "na", "");
                 readStuff(temp_url);
                 break;
             default:

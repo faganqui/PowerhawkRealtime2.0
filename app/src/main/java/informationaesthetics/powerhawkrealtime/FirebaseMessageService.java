@@ -38,7 +38,7 @@ public class FirebaseMessageService extends FirebaseMessagingService {
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
 
-        buildNotification(remoteMessage.getNotification().getBody());
+        buildNotification("Message from firebase");
     }
 
     private void sendNotification(String messageBody) {
@@ -66,11 +66,18 @@ public class FirebaseMessageService extends FirebaseMessagingService {
         String strRingtonePreference = preference.getString("notifications_new_message_ringtone", "DEFAULT_SOUND");
         Boolean isEnabled = preference.getBoolean("notifications_new_message", false);
         Boolean isVibrate = preference.getBoolean("notifications_new_message_vibrate", true);
+
+        Intent intent = new Intent(this, StartupActivity.class);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
+                PendingIntent.FLAG_ONE_SHOT);
+
         if(isEnabled) {
             android.support.v7.app.NotificationCompat.Builder mBuilder = new android.support.v7.app.NotificationCompat.Builder(this);
             mBuilder.setSmallIcon(R.drawable.icon);
             mBuilder.setContentTitle("One of your meter points has gone outside it's set range");
             mBuilder.setContentText(s);
+            mBuilder.setContentIntent(pendingIntent);
 
             mBuilder.setSound(Uri.parse(strRingtonePreference));
 
