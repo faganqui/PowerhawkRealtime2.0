@@ -5,9 +5,12 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -35,7 +38,7 @@ public class FirebaseMessageService extends FirebaseMessagingService {
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
 
-        //sendNotification(remoteMessage.toString());
+        buildNotification(remoteMessage.getNotification().getBody());
     }
 
     private void sendNotification(String messageBody) {
@@ -56,5 +59,33 @@ public class FirebaseMessageService extends FirebaseMessagingService {
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+    }
+
+    protected void buildNotification(String s) {
+        SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
+        String strRingtonePreference = preference.getString("notifications_new_message_ringtone", "DEFAULT_SOUND");
+        Boolean isEnabled = preference.getBoolean("notifications_new_message", false);
+        Boolean isVibrate = preference.getBoolean("notifications_new_message_vibrate", true);
+        if(isEnabled) {
+            android.support.v7.app.NotificationCompat.Builder mBuilder = new android.support.v7.app.NotificationCompat.Builder(this);
+            mBuilder.setSmallIcon(R.drawable.icon);
+            mBuilder.setContentTitle("One of your meter points has gone outside it's set range");
+            mBuilder.setContentText(s);
+
+            mBuilder.setSound(Uri.parse(strRingtonePreference));
+
+            if (isVibrate) {
+                mBuilder.setVibrate(new long[]{99999, 50, 50, 50, 1000});
+            } else {
+                mBuilder.setVibrate(new long[]{});
+            }
+
+            mBuilder.setLights(Color.GREEN, 3000, 3000);
+
+            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+            // notificationID allows you to update the notification later on.
+            mNotificationManager.notify(1, mBuilder.build());
+        }
     }
 }
