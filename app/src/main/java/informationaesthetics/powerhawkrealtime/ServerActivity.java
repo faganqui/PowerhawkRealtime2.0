@@ -14,6 +14,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -74,6 +75,8 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
 
     //this is because i dont know why the fucking interface wont update
     int clickcount = 0;
+    Boolean isServerRead = false;
+    Boolean isReactive = false;
 
     //othervariables
     String headURL = "";
@@ -90,11 +93,6 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_server);
-
-        token = FirebaseInstanceId.getInstance().getToken();
-        Log.d(TAG, "TOKEN: " + token);
-
-        token = token.replace("", "/"); //trying to add slashes between each char see if it sends
 
         //Intent receive_notifications = new Intent(this, FirebaseMessageService.class);
         //startService(receive_notifications);
@@ -240,66 +238,55 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
     protected void launchActivity(String selectedUrl){
         url = selectedUrl;
 
-        new connectToServer().execute(ServerIP, "init");
-        while (readcount != 6){ //read count is set to six when connectToServer exits
-            String zip = "zap";
-            //do nothing till its done reading server
-        }
+        if (!isServerRead) {
+            setLoading();
+            new connectToServer().execute(ServerIP, "init");
+            readcount = 0;
+        }else {
+            SharedPreferences tempSp = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
 
-        //Calls parse url till we have all needed info
-        int lock = -1;
-        readcount = 0;
-
-        SharedPreferences tempSp = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
-
-        String urlPlaceholder = url.split("\\^")[0];
-        String tempCheckIfBeenSaved = tempSp.getString((get_rows + urlPlaceholder), "");
-        if(tempCheckIfBeenSaved.equals("")) {
-            //first time setup we read row and column headers as well as meter_title
-            if (url.contains("reactive")) {
-                while (readcount < 5) {
-                    if (lock != readcount) {
-                        lock = readcount;
-                        if (readcount < 5) {
-                            new ParseURL().execute("http://" + url.split("/")[2], "reactive");
-                        }
+            String urlPlaceholder = url.split("\\^")[0];
+            String tempCheckIfBeenSaved = tempSp.getString((get_rows + urlPlaceholder), "");
+            if (tempCheckIfBeenSaved.equals("")) {
+                //first time setup we read row and column headers as well as meter_title
+                if (url.contains("reactive") || isReactive) {
+                    if (readcount < 5) {
+                        isReactive = true;
+                        new ParseURL().execute("http://" + url.split("/")[2], "reactive");
+                        return;
+                    }
+                } else {
+                    if (readcount < 5) {
+                        new ParseURL().execute("http://" + url.split("/")[2], "");
+                        return;
                     }
                 }
+                saveAllSharedPrefs(url);
             } else {
-                while (readcount < 5) {
-                    if (lock != readcount) {
-                        lock = readcount;
-                        if (readcount < 5) {
-                            new ParseURL().execute("http://" + url.split("/")[2], "");
-                        }
-                    }
-                }
+                //otherwise we just load it from Shared prefs
+                url = url.split("\\^")[0];
+                getAllSharedPrefs(url);
             }
-            saveAllSharedPrefs(url);
-        } else {
-            //otherwise we just load it from Shared prefs
-            url = url.split("\\^")[0];
-            getAllSharedPrefs(url);
+
+            //add saved prefs for meter
+            newSharedPref(row_headers, url, "m");
+            newSharedPref(column_headers, url, "s");
+
+            //Begin the main activity from server
+            Intent intent = new Intent(this, URLHandlerActivity.class);
+            intent.putExtra(get_url, url);
+            intent.putExtra(get_serverip, ServerIP);
+            intent.putExtra(get_rows, row_headers);
+            intent.putExtra(get_columns, column_headers);
+            intent.putExtra(get_kwd, kwdindex);
+            intent.putExtra(get_title, meter_title);
+            intent.putExtra(USER_ID, UserId);
+            intent.putExtra(USER_DISPLAY, UserDisplay);
+            intent.putExtra(get_init_input, initial_input);
+            intent.putExtra(get_alarms, alarms_string);
+            // for debug la_textview.setText(initial_input);
+            startActivity(intent);
         }
-
-        //add saved prefs for meter
-        newSharedPref(row_headers, url, "m");
-        newSharedPref(column_headers, url, "s");
-
-        //Begin the main activity from server
-        Intent intent = new Intent(this, URLHandlerActivity.class);
-        intent.putExtra(get_url, url);
-        intent.putExtra(get_serverip, ServerIP);
-        intent.putExtra(get_rows, row_headers);
-        intent.putExtra(get_columns, column_headers);
-        intent.putExtra(get_kwd, kwdindex);
-        intent.putExtra(get_title, meter_title);
-        intent.putExtra(USER_ID, UserId);
-        intent.putExtra(USER_DISPLAY, UserDisplay);
-        intent.putExtra(get_init_input, initial_input);
-        intent.putExtra(get_alarms, alarms_string);
-        // for debug la_textview.setText(initial_input);
-        startActivity(intent);
     }
 
     @Override
@@ -313,8 +300,12 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
 
     public int setLoading(){
         LinearLayout thisView = (LinearLayout) findViewById(R.id.serverid);
+        TextView loadText = new TextView(this);
         thisView.removeAllViews();
-        thisView.setBackgroundResource(R.drawable.icon_official);
+        thisView.setGravity(Gravity.CENTER);
+        loadText.setGravity(Gravity.CENTER);
+        loadText.setText("Loading" );
+        thisView.addView(loadText);
         thisView.invalidate();
         thisView.requestLayout();
         return 1;
@@ -359,13 +350,6 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
                     dout.close();
                     in.close();
 
-                } else if (strings[1] == "sendtoken") {
-
-                    DataOutputStream dout=new DataOutputStream(soc.getOutputStream());
-                    dout.writeUTF("sendtoken_" + UserId + "_SPLITHERE" + token + "SPLITHERE");
-                    dout.flush();
-                    dout.close();
-
                 }
                 soc.close();
             } catch (Exception e) {
@@ -373,9 +357,9 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
                 e.printStackTrace();
             } finally {
                 initial_input = dataString;
-                if(strings[1] != "sendtoken") {
-                    readcount = 6;
-                }
+                isServerRead = true;
+                launchActivity(url);
+
                 return ("MESSAGE: " + dataString);
             }
         }
@@ -390,6 +374,7 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
         Element table;
         Elements rows;
         int row_counter;
+        String oldUrl;
 
 
         @Override
@@ -529,6 +514,7 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
                 Log.d("JSwa", t.toString());
             } finally {
                 readcount ++;
+                launchActivity(url);
             }
 
             return "Connected! Loading information...";

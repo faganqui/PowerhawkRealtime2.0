@@ -7,12 +7,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -55,6 +58,10 @@ public class StartupActivity extends AppCompatActivity implements View.OnClickLi
     String UserId;
     String UserDisplay;
     String ServerIP = "";
+
+    //cloud messaging token
+    String token;
+    Boolean hasToken = false;
 
     //For saving prefs
     int numSavedURLS =0;
@@ -101,14 +108,12 @@ public class StartupActivity extends AppCompatActivity implements View.OnClickLi
         la_textview = (TextView) findViewById(R.id.savedurlstext);
         la_textview.setText("Welcome "+UserDisplay+",\nClick here for past URL's:");
 
+        /*
         if(ServerIP != "" && ServerIP != null) {
             //makes it so if weve already connected to a server in this session we load server
             //data immediately
             url_input.setText(ServerIP);
             new connectToServer().execute(ServerIP, "url");
-            while (readcount != 6){ //read count is set to six when connectToServer exits
-                la_textview.setText("reading from server...");
-            }
 
             Intent intent = new Intent(this, ServerActivity.class);
             intent.putExtra(USER_DISPLAY, UserDisplay);
@@ -121,16 +126,61 @@ public class StartupActivity extends AppCompatActivity implements View.OnClickLi
         }else{
             makeButtons(savedURLS, 1);
         }
+        */
+        makeButtons(savedURLS, 1);
 
         start_button.setOnClickListener(StartupActivity.this);
     }
 
+    //connect to python server
+    private class connectToServerToken extends AsyncTask<String,Void,String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+            try {
+                //connection refused because its not local host its an emulator, try connecting via my IP
+                Socket soc = new Socket(strings[0], 9002);
+
+                //requests to see which urls are hosted on the server
+                if (strings[1] == "send_token") {
+
+                    DataOutputStream dout=new DataOutputStream(soc.getOutputStream());
+                    dout.writeUTF("sendtoken_" + strings[2] + "_SPLITHERE" + strings[3] + "SPLITHERE");
+                    dout.flush();
+                    dout.close();
+
+                }
+                soc.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                hasToken = true;
+                readStuff(strings[0]);
+            }
+
+            return "winner";
+        }
+    }
+
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.startbutton:
-                //reads the entered URL
+                setLoading();
+                //sends token to server
                 String temp_url = String.valueOf(url_input.getText());
+                readcount = 5;
+                readStuff(temp_url);
+                break;
+            default:
+                setLoading();
+                //first set of buttons, connects to listed past URLS
+                readcount = 5;
+                readStuff(savedURLS.get(view.getId()-100));
+                break;
+            /*
+                //reads the entered URL;
                 newSharedPref(temp_url, "na", "na");
                 int lock = -1;
 
@@ -173,27 +223,7 @@ public class StartupActivity extends AppCompatActivity implements View.OnClickLi
                     //if it fails it trys to connect to server
                 } catch (Exception e ){
                     readcount = 5;
-                    try {
-                        new connectToServer().execute(temp_url, "url");
-                        ServerIP = temp_url;
-                        while (readcount != 6){ //read count is set to six when connectToServer exits
-                            la_textview.setText("reading from server...");
-                        }
-                        Intent intent = new Intent(this, ServerActivity.class);
-                        intent.putExtra(USER_DISPLAY, UserDisplay);
-                        intent.putExtra(USER_ID, UserId);
-                        intent.putExtra(get_serverip, ServerIP);
-                        intent.putExtra(STRING_FROM_SERVER,stringFromServer);
-                        startActivity(intent);
-                        readcount = 5;
-
-                        //makeButtons(savedURLS, 2);
-                        break;
-                    } catch (Exception e2){
-                        //if that fails we print out why
-                        la_textview.setText("Could not connect: \n [1]: " + e + "\n [2]: " + e2);
-                        break;
-                    }
+                    readStuff(temp_url);
                 }
 
             default:
@@ -263,165 +293,37 @@ public class StartupActivity extends AppCompatActivity implements View.OnClickLi
 
         }
         //makeButtons(savedURLS, 2);
-
-    }
-
-    private class ParseURL extends AsyncTask<String, Void, String> { // Gets all doubles from inside table and outputs them to the display in the form: 11,12,13,;21,22,23,;31,32,33,;
-
-        //needed variables
-        String url_read_type = urlTypes[readcount];
-        Document doc;
-        Elements links;
-        Element table;
-        Elements rows;
-        int row_counter;
-
-
-        @Override
-        protected String doInBackground(String... strings) {
-
-            try {
-                switch (url_read_type){
-                    case "initial": //finds the nav page which contains info about the active/reactive URL
-                        Log.d("JSwa", "Connecting to [" + strings[0] + "]");
-                        doc = Jsoup.connect(strings[0]).get();
-                        Log.d("JSwa", "Connected to [" + strings[0] + "]");
-
-                        links = doc.select("FRAME");
-
-                        for (Element link : links) {
-                            String[] split = link.toString().split("src=\"");
-                            String[] split2 = split[1].split("\"");
-                            if(split2[0].toLowerCase().contains("nav")){
-                                url = strings[0] + "/"+split2[0]; //sets url to the navigation tab URL
-                            }else if(split2[0].toLowerCase().contains("header")){
-                                headURL = strings[0] +"/"+ split2[0]; //we also get header URL to collect meter info
-                            }
-
-                        }
-                        break;
-                    case "active":
-                        Log.d("JSwa", "Connecting to [" + strings[0] + "]");
-                        doc = Jsoup.connect(url).get();
-                        Log.d("JSwa", "Connected to [" + strings[0] + "]");
-
-                        links = doc.select("a[href]");
-
-                        for (Element link : links) {
-                            if(strings[1] == "reactive"){
-                                if (link.attr("abs:href").toLowerCase().contains("reactive")) {
-                                    url = link.attr("abs:href");
-                                }
-                            }else {
-                                if (link.attr("abs:href").toLowerCase().contains("active") && !link.attr("abs:href").toLowerCase().contains("reactive")) {
-                                    url = link.attr("abs:href");
-                                }
-                            }
-                        }
-                        break;
-                    case "matrixinfo":
-                        Log.d("JSwa", "Connecting to [" + strings[0] + "]");
-                        doc = Jsoup.connect(url).get();
-                        Log.d("JSwa", "Connected to [" + strings[0] + "]");
-                        if (String.valueOf(doc).split("url=")[1].split(".htm")[0].contains("active")){ //catches redirect
-                            if(strings[1]=="reactive"){
-                                url = url.split("reactive.htm")[0] + String.valueOf(doc).split("url=")[1].split(".htm")[0] + ".htm"; //sets url to redirect link
-                            }else {
-                                url = url.split("active.htm")[0] + String.valueOf(doc).split("url=")[1].split(".htm")[0] + ".htm"; //sets url to redirect link
-                            }
-                            Log.d("JSwa", "Connecting to [" + strings[0] + "]");
-                            doc = Jsoup.connect(url).get();
-                            Log.d("JSwa", "Connected to [" + strings[0] + "]");
-                        }
-
-                        table = doc.select("TABLE").get(0); //select the first table.
-                        rows = table.select("tr");
-
-                        String Matrix_input = "";
-
-                        row_counter = 0;
-                        for (Element row : rows){
-                            if(row_counter!=0) { // 0 is headers row so we skip it
-                                Elements columns = row.select("td");
-                                int column_counter = 0;
-                                for (Element column : columns) {
-                                    if (column_counter != 0) { //0 is the title column so we skip it
-                                        if (column.text().matches("-?\\d*\\.?\\d+")) { //if the column only contains a double
-                                            Matrix_input += column.text() + ","; // signifies end of column to matrix
-                                        }else{
-                                            ignoredColumns.add(column_counter);
-                                        }
-                                    }
-                                    column_counter++;
-                                }
-                                Matrix_input += ";"; // signifies end of row to matrix
-                            }
-                            row_counter++;
-                        }
-                        if(skip_in!=1) {
-                            initial_input = Matrix_input;
-                        }
-                        break;
-                    case "headerinfo":
-                        Log.d("JSwa", "Connecting to [" + strings[0] + "]");
-                        doc = Jsoup.connect(url).get();
-                        Log.d("JSwa", "Connected to [" + strings[0] + "]");
-
-                        table = doc.select("TABLE").get(0); //select the first table.
-                        rows = table.select("tr");
-                        Elements col_headers = rows.get(0).select("th");
-
-                        int counter = 0;
-                        int counter_x = 0; //not including ignored columns
-                        for (Element header : col_headers){
-                            if(!ignoredColumns.contains(counter) && counter > 1) {
-                                column_headers += " " + header.text() + " " + ";";
-                                if (header.text().toLowerCase().contains("kwh delivered")){
-                                    kwdindex = counter_x;
-                                }
-                                counter_x++;
-                            }
-                            counter ++;
-                        }
-
-                        for (Element row : rows) {
-                            Elements columns = row.select("td");
-                            counter = 0;
-                            for (Element column : columns) {
-                                if (counter == 1){
-                                    row_headers += column.text() + ";";
-                                }
-                                counter++;
-                            }
-                        }
-                        break;
-                    case "gettitle":
-                        Log.d("JSwa", "Connecting to [" + strings[0] + "]");
-                        doc = Jsoup.connect(headURL).get();
-                        Log.d("JSwa", "Connected to [" + strings[0] + "]");
-
-                        Element table = doc.select("TABLE").get(0);
-                        Elements rows = table.select("p");
-
-                        String[] parts = rows.get(0).toString().split(">");
-                        String[] parts2 = parts[2].split("<");
-
-                        meter_title = parts2[0];
-                        break;
-
-                }
-            } catch (Throwable t) {
-                readcount = 99;
-                Log.d("JSwa", t.toString());
-            } finally {
-                readcount ++;
-            }
-
-            return "Connected! Loading information...";
-
+        */
         }
     }
 
+    public void readStuff(String temp_url){
+        try {
+            if (!hasToken) {
+                token = FirebaseInstanceId.getInstance().getToken();
+                Log.d("TAGStartup", "TOKEN: " + token);
+
+                token = token.replace("", "/");
+                new connectToServerToken().execute(temp_url, "send_token", UserId, token);
+                return;
+            } else {
+                if (readcount != 6) {
+                    ServerIP = temp_url;
+                    new connectToServer().execute(temp_url, "url");
+                    return;
+                } else {
+                    Intent intent = new Intent(this, ServerActivity.class);
+                    intent.putExtra(USER_DISPLAY, UserDisplay);
+                    intent.putExtra(USER_ID, UserId);
+                    intent.putExtra(get_serverip, ServerIP);
+                    intent.putExtra(STRING_FROM_SERVER, stringFromServer);
+                    startActivity(intent);
+                }
+            }
+        } catch (Exception e) {
+            readStuff(temp_url);
+        }
+    }
 
     private void newSharedPref(String temp_url_input, String url_to_save, String ms){
         //adds a new URL to list of saved ones
@@ -467,6 +369,8 @@ public class StartupActivity extends AppCompatActivity implements View.OnClickLi
     //connect to python server
     private class connectToServer extends AsyncTask<String,Void,String>{
 
+
+
         @Override
         protected String doInBackground(String... strings) {
             String dataString = "";
@@ -500,6 +404,7 @@ public class StartupActivity extends AppCompatActivity implements View.OnClickLi
                     userInput = sb.toString();
 
                     stringFromServer = userInput;
+                    readcount = 6;
 
                     String[] URLsFromServer = userInput.split(";");
                     savedURLS = new ArrayList<>();
@@ -548,12 +453,25 @@ public class StartupActivity extends AppCompatActivity implements View.OnClickLi
                 e.printStackTrace();
             } finally {
                 initial_input = dataString;
-                readcount = 6;
+                readStuff(strings[0]);
                 return ("MESSAGE: " + dataString);
             }
         }
 
 
+    }
+
+    public int setLoading(){
+        LinearLayout thisView = (LinearLayout) findViewById(R.id.startupLayout);
+        TextView loadText = new TextView(this);
+        thisView.removeAllViews();
+        thisView.setGravity(Gravity.CENTER);
+        loadText.setGravity(Gravity.CENTER);
+        loadText.setText("Loading" );
+        thisView.addView(loadText);
+        thisView.invalidate();
+        thisView.requestLayout();
+        return 1;
     }
 
     private void makeButtons(ArrayList<String> la_Buttons, int mode) {

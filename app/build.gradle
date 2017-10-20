@@ -15,8 +15,8 @@ android {
         applicationId "informationaesthetics.powerhawkrealtime"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 11
-        versionName '2.7.0'
+        versionCode 14
+        versionName '2.8.3'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
