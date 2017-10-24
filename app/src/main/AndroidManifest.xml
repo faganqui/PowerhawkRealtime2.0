@@ -29,14 +29,11 @@
             android:label="@string/title_activity_server"
             android:theme="@style/AppTheme" />
 
-
-        <service
-            android:name=".FirebaseMessageService">
+        <service android:name=".FirebaseMessageService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
         <service android:name=".BackGroundNotification">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
@@ -46,9 +43,18 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/icon_official" />
-        <meta-data android:name="com.google.firebase.messaging.default_notification_color"
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorFour" />
 
+        <activity
+            android:name=".FirebaseLoginActivity"
+            android:label="@string/title_activity_firebase_login"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".LoadFromDatabase"
+            android:label="@string/title_activity_load_from_database"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>
