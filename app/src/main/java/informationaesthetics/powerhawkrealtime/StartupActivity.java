@@ -370,8 +370,6 @@ public class StartupActivity extends AppCompatActivity implements View.OnClickLi
     //connect to python server
     private class connectToServer extends AsyncTask<String,Void,String>{
 
-
-
         @Override
         protected String doInBackground(String... strings) {
             String dataString = "";
@@ -458,8 +456,6 @@ public class StartupActivity extends AppCompatActivity implements View.OnClickLi
                 return ("MESSAGE: " + dataString);
             }
         }
-
-
     }
 
     public int setLoading(){

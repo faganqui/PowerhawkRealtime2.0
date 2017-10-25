@@ -37,7 +37,7 @@ import com.google.firebase.database.ValueEventListener;
 public class LoadFromDatabase extends AppCompatActivity {
 
     //Prefs
-    private static final String SHARED_PREFS = "FORGE_SAVED_PREFS";
+    private static final String SHARED_PREFS = "POWERHAWK_URL_SAVED_PREFS";
 
     String[] stat_array = new String[20];
 

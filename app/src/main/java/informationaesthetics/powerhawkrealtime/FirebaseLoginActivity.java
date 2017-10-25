@@ -28,7 +28,7 @@ public class FirebaseLoginActivity extends AppCompatActivity implements View.OnC
     private static String TAG = "loginactivity";
 
     //Prefs
-    private static final String SHARED_PREFS = "FORGE_SAVED_PREFS";
+    private static final String SHARED_PREFS = "POWERHAWK_URL_SAVED_PREFS";
 
 
     private FirebaseAuth mAuth;
@@ -42,10 +42,10 @@ public class FirebaseLoginActivity extends AppCompatActivity implements View.OnC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_firebase_login);
 
-        SignInButton = (Button)findViewById(R.id.SignInButton);
-        SignUpButton = (Button)findViewById(R.id.SignUpButton);
+        SignInButton = (Button)findViewById(R.id.fb_sign_in);
+        SignUpButton = (Button)findViewById(R.id.fb_sign_up);
 
         SignInButton.setOnClickListener(this);
         SignUpButton.setOnClickListener(this);
@@ -54,9 +54,11 @@ public class FirebaseLoginActivity extends AppCompatActivity implements View.OnC
 
         if(mAuth.getCurrentUser() != null) {
             //Starts loading the activity immidiatley if we are already signed in
-            Intent load = new Intent(getBaseContext(), LoadFromDatabase.class);
+            Intent load = new Intent(getBaseContext(), MainActivity.class);
             startActivity(load);
         }
+
+
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -106,7 +108,7 @@ public class FirebaseLoginActivity extends AppCompatActivity implements View.OnC
         }
 
         switch (view.getId()){
-            case R.id.SignInButton:
+            case R.id.fb_sign_in:
                 //Signs in an existing user
                 mAuth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -123,7 +125,8 @@ public class FirebaseLoginActivity extends AppCompatActivity implements View.OnC
                                             Toast.LENGTH_SHORT).show();
                                 }else{
 
-                                    Intent load = new Intent(getBaseContext(), LoadFromDatabase.class);
+                                    //Intent load = new Intent(getBaseContext(), LoadFromDatabase.class);
+                                    Intent load = new Intent(getBaseContext(), FirstTimeSetupActivity.class);
                                     startActivity(load);
 
                                 }
@@ -133,7 +136,7 @@ public class FirebaseLoginActivity extends AppCompatActivity implements View.OnC
                         });
 
                 break;
-            case R.id.SignUpButton:
+            case R.id.fb_sign_up:
                 //Signs up a new user
                 mAuth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -154,7 +157,9 @@ public class FirebaseLoginActivity extends AppCompatActivity implements View.OnC
                                     //instantiate database
                                     database = FirebaseDatabase.getInstance();
 
-                                    Intent load = new Intent(getBaseContext(), LoadFromDatabase.class);
+                                    //todo - save all necessary things to the datatbase
+
+                                    Intent load = new Intent(getBaseContext(), FirstTimeSetupActivity.class);
                                     startActivity(load);
                                 }
                             }

@@ -88,6 +88,9 @@
     <string name="title_activity_server">ServerActivity</string>
     <string name="title_activity_firebase_login">FirebaseLoginActivity</string>
 
+    <string name="enter_server_edittext">Enter IP adress of server</string>
+    <string name="add_server">Continue</string>
+
     <string name="auth_failed">authorization failed</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_up">Sign Up</string>
@@ -95,4 +98,6 @@
     <string name="email_edit_text">Email</string>
     <string name="password_edit_text">Password</string>
     <string name="title_activity_load_from_database">LoadFromDatabase</string>
+    <string name="title_activity_first_time_setup">FirstTimeSetupActivity</string>
+    <string name="title_activity_main">MainActivity</string>
 </resources>

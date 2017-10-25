@@ -13,13 +13,7 @@
         android:theme="@style/AppTheme">
         <activity android:name=".StartupActivity" />
         <activity android:name=".URLHandlerActivity" />
-        <activity android:name=".LoginActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".LoginActivity" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -49,11 +43,25 @@
 
         <activity
             android:name=".FirebaseLoginActivity"
-            android:label="@string/title_activity_firebase_login"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".LoadFromDatabase"
             android:label="@string/title_activity_load_from_database"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".FirstTimeSetupActivity"
+            android:label="@string/title_activity_first_time_setup"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
             android:theme="@style/AppTheme"></activity>
     </application>
 

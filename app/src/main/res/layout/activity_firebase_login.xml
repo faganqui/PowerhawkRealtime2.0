@@ -29,13 +29,13 @@
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:text="@string/sign_up"
-            android:id="@+id/SignUpButton"/>
+            android:id="@+id/fb_sign_up"/>
 
         <Button
-            android:id="@+id/SignInButton"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
+            android:id="@+id/fb_sign_in"
             android:text="@string/sign_in" />
     </LinearLayout>
 
