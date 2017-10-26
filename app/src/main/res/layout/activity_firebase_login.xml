@@ -4,8 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical"
     tools:context="informationaesthetics.powerhawkrealtime.FirebaseLoginActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/icon_official"/>
 
     <EditText
         android:id="@+id/UserEditText"
@@ -39,6 +46,11 @@
             android:text="@string/sign_in" />
     </LinearLayout>
 
-
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/legacy"
+        android:text="LegacyMode"
+        android:onClick="onClick"/>
 
 </LinearLayout>

@@ -126,7 +126,7 @@ public class FirstTimeSetupActivity extends AppCompatActivity implements View.On
     }
 
     public void setUpEverything(int phase, String server){
-        //called until everything is read
+        //called until everythingis read
 
         // go through the phases of loading
         switch (phase) {
@@ -136,7 +136,7 @@ public class FirstTimeSetupActivity extends AppCompatActivity implements View.On
                 new connectToServer().execute(server, "url");
                 break;
             case 2:
-                loadText.setText("Performing first-time setup\nSetting up data structures for\n Meter "  + urlcount + " of " + urls.length);
+                //loadText.setText("Performing first-time setup\nSetting up data structures for\n Meter "  + urlcount + " of " + urls.length);
                 if (urlcount < urls.length) {
                     setUpHeaders(urls[urlcount]);
                 } else {
@@ -145,7 +145,7 @@ public class FirstTimeSetupActivity extends AppCompatActivity implements View.On
                 }
                 break;
             case 3:
-                loadText.setText("Performing first-time setup\nFilling data structures for\n Meter "  + urlcount + " of " + urls.length);
+                //loadText.setText("Performing first-time setup\nFilling data structures for\n Meter "  + urlcount + " of " + urls.length);
                 if (urlcount < urls.length) {
                     new connectToServer().execute(server, "init", String.valueOf(urlcount), urls[urlcount]);
                 } else {
@@ -179,6 +179,8 @@ public class FirstTimeSetupActivity extends AppCompatActivity implements View.On
                 return;
             } else {
                 //then call again to go to next URL
+                ignoredColumns = new ArrayList<>();
+                isReactive = false;
                 readcount = 0;
                 urlcount++;
                 setUpEverything(2, server);
@@ -188,6 +190,8 @@ public class FirstTimeSetupActivity extends AppCompatActivity implements View.On
                 new ParseURL().execute("http://" + url.split("/")[2], "");
                 return;
             } else {
+                ignoredColumns = new ArrayList<>();
+                isReactive = false;
                 urlcount++;
                 readcount = 0;
                 setUpEverything(2, server);
@@ -336,8 +340,7 @@ public class FirstTimeSetupActivity extends AppCompatActivity implements View.On
                             counter ++;
                         }
 
-                        ignoredColumns = new ArrayList<>();
-
+                        row_headers[urlcount] = "";
                         for (Element row : rows) {
                             Elements columns = row.select("td");
                             counter = 0;

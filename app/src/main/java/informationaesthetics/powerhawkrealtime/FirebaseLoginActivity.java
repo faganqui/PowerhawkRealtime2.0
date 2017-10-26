@@ -52,12 +52,12 @@ public class FirebaseLoginActivity extends AppCompatActivity implements View.OnC
 
         mAuth = FirebaseAuth.getInstance();
 
+
         if(mAuth.getCurrentUser() != null) {
             //Starts loading the activity immidiatley if we are already signed in
             Intent load = new Intent(getBaseContext(), MainActivity.class);
             startActivity(load);
         }
-
 
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -101,10 +101,12 @@ public class FirebaseLoginActivity extends AppCompatActivity implements View.OnC
         EditText passwordText = (EditText) findViewById(R.id.PasswordEditText);
         String password = String.valueOf(passwordText.getText());
 
-        if(email.equals("")|| password.equals("")){
-            Toast.makeText(FirebaseLoginActivity.this, R.string.auth_failed,
-                    Toast.LENGTH_SHORT).show();
-            return;
+        if(view.getId() != R.id.legacy) {
+            if (email.equals("") || password.equals("")) {
+                Toast.makeText(FirebaseLoginActivity.this, R.string.auth_failed,
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
 
         switch (view.getId()){
@@ -126,7 +128,7 @@ public class FirebaseLoginActivity extends AppCompatActivity implements View.OnC
                                 }else{
 
                                     //Intent load = new Intent(getBaseContext(), LoadFromDatabase.class);
-                                    Intent load = new Intent(getBaseContext(), FirstTimeSetupActivity.class);
+                                    Intent load = new Intent(getBaseContext(), MainActivity.class);
                                     startActivity(load);
 
                                 }
@@ -165,6 +167,9 @@ public class FirebaseLoginActivity extends AppCompatActivity implements View.OnC
                             }
                         });
                 break;
+            case R.id.legacy:
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
         }
     }
 

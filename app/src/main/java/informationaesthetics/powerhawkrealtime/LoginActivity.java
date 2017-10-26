@@ -114,7 +114,10 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     signOut();
                 }
                 break;
-
+            case R.id.newschool:
+                Intent intent = new Intent(this,FirebaseLoginActivity.class);
+                startActivity(intent);
+                break;
         }
     }
 
