@@ -93,7 +93,6 @@ public class FirstTimeSetupActivity extends AppCompatActivity implements View.On
 
         background = Color.GRAY;
 
-
         continue_button.setOnClickListener(this);
     }
 
@@ -213,6 +212,7 @@ public class FirstTimeSetupActivity extends AppCompatActivity implements View.On
             }
 
             editor.putString("urls", url_String);
+            editor.putString("server", server);
         }
 
         editor.putString(get_rows + urlx, row_headers[count]);

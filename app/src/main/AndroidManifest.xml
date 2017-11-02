@@ -50,7 +50,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".LoadFromDatabase"
             android:label="@string/title_activity_load_from_database"
@@ -62,7 +61,12 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+
+        <service
+            android:name=".FirebaseDatabaseCollection"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

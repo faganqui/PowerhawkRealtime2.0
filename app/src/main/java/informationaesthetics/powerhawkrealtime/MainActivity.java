@@ -1,10 +1,15 @@
 package informationaesthetics.powerhawkrealtime;
 
+import android.app.Service;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +31,11 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
@@ -35,6 +45,8 @@ import com.jjoe64.graphview.series.Series;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import static java.lang.Math.min;
@@ -54,7 +66,16 @@ public class MainActivity extends AppCompatActivity {
     private static final String get_columns = "POWERHAWK_COLUMNS";
 
     // Interface objects
-    GraphView graph;
+    GraphView graph; // the graph
+    LinearLayout[] spinners; // holds each layout which holds the spinners
+    LinearLayout[] headers;
+    Boolean first_read = true;
+
+    //useful variables for interface
+    Map<Integer, Series> currentlyDisplayedSeries = new HashMap<>(); //holds all the series displayed on the graph
+    Map<Integer, String> currentlyDisplayedSeriesInfo = new HashMap<>();
+    Integer labelCount = 0; //keeps track of how of how many labels there are
+    //String[] extraStuff; // string representation of labels of graph
 
     //variables for data
     String[] rows; // holds titles of each row for each URL
@@ -63,13 +84,25 @@ public class MainActivity extends AppCompatActivity {
     String[] titles; // holds the titles for each meter
     String[] data_arrays; // holds all the data temporarily
     MatrixArray[] matrix_array; // holds all the data in an easier-to-acess kind of way
-    Map<Integer, Series> currentlyDisplayedSeries = new HashMap<>();
-    Integer labelCount = 0;
+
+
+    //variables for database
+    int index = 0; // to set up all variables
+    int readCountDatabase = 0;
+    String stats = "data_array";
+    String server;
+    Boolean hasNextStat = false;
+    String result;
+    SharedPreferences sharedPref;
+    FirebaseDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        sharedPref = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        database = FirebaseDatabase.getInstance();
 
         //load the data into preferences
         getSharedPreferences();
@@ -78,7 +111,12 @@ public class MainActivity extends AppCompatActivity {
         setUpMatricies();
 
         //build the layout
+        buildGraph();
         buildLayout();
+
+        //update data from firebase
+        collectAllData();
+
     }
 
     @Override
@@ -117,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
     protected void buildLayout(){
         //build the layout
         LinearLayout main = (LinearLayout) findViewById(R.id.main_layout);
+        main.removeAllViews();
 
         setHeader();
 
@@ -130,13 +169,16 @@ public class MainActivity extends AppCompatActivity {
             unit_layout.setLayoutParams(unit_lp);
             unit_layout.setId(100 + i);
 
+            //make the header
             LinearLayout headerLayout = makeHeaderLayout(i);
+            headers[i] = headerLayout; //save spinners - we don't remake these
 
+            //makes spinners and controls
             LinearLayout spinnerLayout = makeSpinnerLayout(i);
+            spinners[i] = spinnerLayout; //save spinners - we don't remake these
 
-            LinearLayout extraSpace = new LinearLayout(this);
-            extraSpace.setOrientation(LinearLayout.VERTICAL);
-            extraSpace.setId(520+i);
+            //makes the extra space to put label headers
+            LinearLayout extraSpace = makeExtraStuffLayout(i);
 
             unit_layout.addView(headerLayout);
             unit_layout.addView(extraSpace);
@@ -144,10 +186,37 @@ public class MainActivity extends AppCompatActivity {
             main.addView(unit_layout);
         }
 
-        buildGraph();
-
         LinearLayout g_layout = (LinearLayout) findViewById(R.id.main_layout_graph);
-        g_layout.addView(graph);
+        try {
+            g_layout.addView(graph);
+        }catch (Exception e){
+            //graph already on layout
+        }
+    }
+
+    protected LinearLayout makeExtraStuffLayout(int i){
+        LinearLayout extraLayout = new LinearLayout(this);
+        extraLayout.setOrientation(LinearLayout.VERTICAL);
+        extraLayout.setId(520+i);
+
+        Iterator iterator = currentlyDisplayedSeries.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry pair = (Map.Entry)iterator.next();
+
+            int cur_label = (Integer) pair.getKey();
+            String info_string = currentlyDisplayedSeriesInfo.get(cur_label);
+            int row = Integer.valueOf( info_string.split(",")[1] );
+            int column = Integer.valueOf(info_string.split(",")[2]);
+            int url =Integer.valueOf( info_string.split(",")[0]);
+
+            if(i == url) {
+                LinearLayout item = makeItemOnRow(url, row, column);
+                extraLayout.addView(item);
+            }
+
+        }
+
+        return extraLayout;
     }
 
     protected LinearLayout makeHeaderLayout(int i){
@@ -229,29 +298,19 @@ public class MainActivity extends AppCompatActivity {
                 int row = rowsSpinner.getSelectedItemPosition();
                 int column = columnsSpinner.getSelectedItemPosition();
                 addSeriesToGraph(url,row,column);
+                LinearLayout observedItem = makeItemOnRow(url,row,column);
 
-                LinearLayout observedItem = new LinearLayout(getApplicationContext());
-                observedItem.setOrientation(LinearLayout.HORIZONTAL);
-                TextView itemText = new TextView(getApplicationContext());
-                itemText.setText(rows[url].split(";")[row] + ", " + columns[url].split(";")[column] + ": " + matrix_array[url].get_recent_item(row, column));
-                itemText.setTextColor(getResources().getColor(COLORS_ARRAY[(url+row+column)%COLORS_ARRAY.length]));
-
-                Button removeButton = new Button(getApplicationContext());
-                removeButton.setText("-");
-                removeButton.setId(720 + labelCount);
-                removeButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        removeSeriesFromGraph(v.getId() - 720);
-                        ((ViewGroup)v.getParent().getParent()).removeView((ViewGroup)v.getParent());
-                    }
-                });
-
-                observedItem.addView(removeButton);
-                observedItem.addView(itemText);
+                /*
+                if (extraStuff[url] != null){
+                    extraStuff[url] += row + "," + column + ";";
+                } else {
+                    extraStuff[url] = "";
+                    extraStuff[url] += row + "," + column + ";";
+                }*/
 
                 LinearLayout extraStuff = (LinearLayout) findViewById(520+url);
                 extraStuff.addView(observedItem);
+
                 labelCount++;
             }
         });
@@ -262,10 +321,32 @@ public class MainActivity extends AppCompatActivity {
         return spinnerLayout;
     }
 
+    protected LinearLayout makeItemOnRow (int url, int row, int column) {
+        LinearLayout observedItem = new LinearLayout(getApplicationContext());
+        observedItem.setOrientation(LinearLayout.HORIZONTAL);
+        TextView itemText = new TextView(getApplicationContext());
+        itemText.setText(rows[url].split(";")[row] + ", " + columns[url].split(";")[column] + ": " + matrix_array[url].get_recent_item(row, column));
+        itemText.setTextColor(getResources().getColor(COLORS_ARRAY[(url+row+column)%COLORS_ARRAY.length]));
+
+        Button removeButton = new Button(getApplicationContext());
+        removeButton.setText("-");
+        removeButton.setId(720 + labelCount - 1);
+        removeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removeSeriesFromGraph(v.getId() - 720);
+                ((ViewGroup)v.getParent().getParent()).removeView((ViewGroup)v.getParent());
+            }
+        });
+
+        observedItem.addView(removeButton);
+        observedItem.addView(itemText);
+        return observedItem;
+    }
+
     protected void setUpMatricies(){
         //set up matrices
         for (int i = 0; i < data_arrays.length; i ++){
-
             try {
                 String[] inputs = data_arrays[i].split("!");
                 matrix_array[i] = new MatrixArray(inputs[0]);
@@ -284,11 +365,20 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPref = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
         urls = sharedPref.getString("urls","").split("URLSPLIT");
 
-        rows = new String[urls.length];
-        columns = new String[urls.length];
-        titles = new String[urls.length];
-        matrix_array = new MatrixArray[urls.length];
-        data_arrays = new String[urls.length];
+        if (first_read) {
+            headers = new LinearLayout[urls.length];
+            spinners = new LinearLayout[urls.length];
+            rows = new String[urls.length];
+            columns = new String[urls.length];
+            titles = new String[urls.length];
+           // extraStuff = new String[urls.length];
+            matrix_array = new MatrixArray[urls.length];
+            data_arrays = new String[urls.length];
+            first_read = false;
+        }
+
+        //todo: collect this automatically
+        server = sharedPref.getString("server", "");
 
         for (int i = 0; i < urls.length; i++) {
             rows[i] = sharedPref.getString(get_rows + urls[i], "");
@@ -332,12 +422,148 @@ public class MainActivity extends AppCompatActivity {
         String title = urls[url] + rows[url].split(";")[row] + columns[url].split(";")[column];
         series.setTitle(title);
         currentlyDisplayedSeries.put(labelCount, series);
+        currentlyDisplayedSeriesInfo.put(labelCount, url + "," + row + "," + column);
         graph.addSeries(series);
     }
 
     public void removeSeriesFromGraph(Integer seriesLabel){
         graph.removeSeries(currentlyDisplayedSeries.get(seriesLabel));
         currentlyDisplayedSeries.remove(seriesLabel);
+        currentlyDisplayedSeriesInfo.remove(seriesLabel);
+    }
+
+    //methods for continuously updating the layout
+    public void updateLayout(){
+        // re draws the layout to update numbers
+        updateGraph();
+
+        //build the layout
+        LinearLayout main = (LinearLayout) findViewById(R.id.main_layout);
+        main.removeAllViews();
+
+        setHeader();
+
+        for (int i = 0; i < urls.length; i+= URL_PAGES_BEING_READ) {
+            LinearLayout unit_layout = new LinearLayout(this);
+            unit_layout.setPadding(70,70,0,0);
+            unit_layout.setOrientation(LinearLayout.VERTICAL);
+            RelativeLayout.LayoutParams unit_lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            unit_layout.setBackgroundResource(R.drawable.border);
+            unit_layout.setLayoutParams(unit_lp);
+            unit_layout.setId(100 + i);
+
+            LinearLayout header = makeHeaderLayout(i);
+
+            //makes the extra space to put label headers
+            LinearLayout extraSpace = makeExtraStuffLayout(i);
+
+            unit_layout.addView(header);
+            unit_layout.addView(extraSpace);
+            ((ViewGroup)spinners[i].getParent()).removeView(spinners[i]);
+            unit_layout.addView(spinners[i]);
+            main.addView(unit_layout);
+        }
+    }
+
+    public void updateGraph(){
+        //re draws the graph
+        graph.removeAllSeries();
+        Iterator iterator = currentlyDisplayedSeries.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry pair = (Map.Entry)iterator.next();
+
+            int cur_label = (Integer) pair.getKey();
+            String info_string = currentlyDisplayedSeriesInfo.get(cur_label);
+            int row = Integer.valueOf( info_string.split(",")[1] );
+            int column = Integer.valueOf(info_string.split(",")[2]);
+            int url =Integer.valueOf( info_string.split(",")[0]);
+            LineGraphSeries series = make_series(matrix_array[url].get_all_items(row, column));
+            series.setColor(getResources().getColor(COLORS_ARRAY[(url+row+column)%10]));
+            String title = urls[url] + rows[url].split(";")[row] + columns[url].split(";")[column];
+            series.setTitle(title);
+
+            currentlyDisplayedSeries.put(cur_label, series);
+
+            graph.addSeries(series);
+        }
+    }
+
+    //database collection
+    public void collectAllData(){
+
+        //breaks if we've collected all the data
+        if(index == urls.length){
+            readCountDatabase++;
+            if (readCountDatabase >= 3) {
+                getSharedPreferences();
+                setUpMatricies();
+                updateLayout();
+                readCountDatabase = 0;
+            }
+            return;
+        }
+
+        //placeStatInPrefs
+        if (hasNextStat){
+            SharedPreferences.Editor editor = sharedPref.edit();
+            //puts the read value in shared pref
+            editor.putString(get_init_input+urls[index], result);
+            editor.apply();
+            index++;
+            hasNextStat = false;
+        }
+
+        //retrieves each stat value from database
+        if(index < urls.length) {
+            getStat(index);
+        } else {
+            //and now we wait
+        }
+    }
+
+    public void updateData(String data, int url){
+        SharedPreferences.Editor editor = sharedPref.edit();
+        //puts the read value in shared pref
+        if (data != "") {
+            editor.putString(get_init_input + urls[url], data);
+            editor.apply();
+            index++;
+        }
+    }
+
+    public void getStat(final int index){
+        //sets result to the current read data
+        // sets a specific statistic for a user
+        String refString = "/" + server.replace(".", "") + "/" + urls[index].replaceAll("[./:]", "") + "/" + stats;
+        DatabaseReference statData = database.getReference(refString);
+
+        // Attach a listener to read the data at our posts reference
+        statData.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String value = dataSnapshot.getValue(String.class);
+                result = value;
+
+                SharedPreferences.Editor editor = sharedPref.edit();
+                //puts the read value in shared pref
+                editor.putString(get_init_input+urls[index], result);
+                editor.apply();
+
+                //calls to collect data after previous data is read
+                hasNextStat = true;
+                if (index <= urls.length) {
+                    collectAllData();
+                } else {
+                    updateData(value, index);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getCode());
+            }
+        });
+
     }
 
 }
