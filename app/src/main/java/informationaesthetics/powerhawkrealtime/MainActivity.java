@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
     //variables for database
     int index = 0; // to set up all variables
     int readCountDatabase = 0;
+    String date = ""; // keeps track of last time we read from database
     String stats = "data_array";
     String server;
     Boolean hasNextStat = false;
@@ -315,9 +316,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        spinnerLayout.addView(confirmButton);
         spinnerLayout.addView(rowsSpinner);
         spinnerLayout.addView(columnsSpinner);
-        spinnerLayout.addView(confirmButton);
         return spinnerLayout;
     }
 
@@ -330,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button removeButton = new Button(getApplicationContext());
         removeButton.setText("-");
-        removeButton.setId(720 + labelCount - 1);
+        removeButton.setId(720 + getUniqueLabel(url,row,column));
         removeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -363,7 +364,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void getSharedPreferences() {
         SharedPreferences sharedPref = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
-        urls = sharedPref.getString("urls","").split("URLSPLIT");
+        urls = sharedPref.getString("urls", "").split("URLSPLIT");
+        date = sharedPref.getString("date", "");
 
         if (first_read) {
             headers = new LinearLayout[urls.length];
@@ -406,6 +408,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void buildGraph(){
+        GridLabelRenderer gridLabel = graph.getGridLabelRenderer();
+        gridLabel.setHorizontalAxisTitle("seconds since " + date);
+
         GraphView graphView = new GraphView(this);
         graphView.setPadding(0,0,0,0);
         graphView.getViewport().setMaxX(0);
@@ -421,8 +426,8 @@ public class MainActivity extends AppCompatActivity {
         series.setColor(getResources().getColor(COLORS_ARRAY[(url+row+column)%10]));
         String title = urls[url] + rows[url].split(";")[row] + columns[url].split(";")[column];
         series.setTitle(title);
-        currentlyDisplayedSeries.put(labelCount, series);
-        currentlyDisplayedSeriesInfo.put(labelCount, url + "," + row + "," + column);
+        currentlyDisplayedSeries.put(getUniqueLabel(url,row,column), series);
+        currentlyDisplayedSeriesInfo.put(getUniqueLabel(url,row,column), url + "," + row + "," + column);
         graph.addSeries(series);
     }
 
@@ -430,6 +435,10 @@ public class MainActivity extends AppCompatActivity {
         graph.removeSeries(currentlyDisplayedSeries.get(seriesLabel));
         currentlyDisplayedSeries.remove(seriesLabel);
         currentlyDisplayedSeriesInfo.remove(seriesLabel);
+    }
+
+    public int getUniqueLabel(int one, int two, int three){
+        return Integer.valueOf(String.valueOf(one) + String.valueOf(two) + String.valueOf(three));
     }
 
     //methods for continuously updating the layout
@@ -468,6 +477,10 @@ public class MainActivity extends AppCompatActivity {
     public void updateGraph(){
         //re draws the graph
         graph.removeAllSeries();
+
+        GridLabelRenderer gridLabel = graph.getGridLabelRenderer();
+        gridLabel.setHorizontalAxisTitle("seconds since " + date);
+
         Iterator iterator = currentlyDisplayedSeries.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry pair = (Map.Entry)iterator.next();
@@ -525,6 +538,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPref.edit();
         //puts the read value in shared pref
         if (data != "") {
+            editor.putString("date", date);
             editor.putString(get_init_input + urls[url], data);
             editor.apply();
             index++;
@@ -536,6 +550,22 @@ public class MainActivity extends AppCompatActivity {
         // sets a specific statistic for a user
         String refString = "/" + server.replace(".", "") + "/" + urls[index].replaceAll("[./:]", "") + "/" + stats;
         DatabaseReference statData = database.getReference(refString);
+
+        //get last read date
+        String refString2 = "/" + server.replace(".", "") + "/" + urls[index].replaceAll("[./:]", "") + "/" + "date";
+        DatabaseReference statData2 = database.getReference(refString2);
+
+        statData2.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                date = dataSnapshot.getValue(String.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         // Attach a listener to read the data at our posts reference
         statData.addValueEventListener(new ValueEventListener() {
