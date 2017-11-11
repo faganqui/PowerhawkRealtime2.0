@@ -331,6 +331,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button removeButton = new Button(getApplicationContext());
         removeButton.setText("-");
+        removeButton.setBackgroundResource(R.drawable.btndefault);
         removeButton.setId(720 + getUniqueLabel(url,row,column));
         removeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -408,8 +409,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void buildGraph(){
-        GridLabelRenderer gridLabel = graph.getGridLabelRenderer();
-        gridLabel.setHorizontalAxisTitle("seconds since " + date);
 
         GraphView graphView = new GraphView(this);
         graphView.setPadding(0,0,0,0);
@@ -419,6 +418,9 @@ public class MainActivity extends AppCompatActivity {
         graphView.getViewport().setScrollable(true);
         graphView.getViewport().setScalable(true);
         graph = graphView;
+
+        GridLabelRenderer gridLabel = graph.getGridLabelRenderer();
+        gridLabel.setHorizontalAxisTitle("seconds since " + date);
     }
 
     public void addSeriesToGraph(int url, int row, int column){
@@ -538,11 +540,18 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPref.edit();
         //puts the read value in shared pref
         if (data != "") {
-            editor.putString("date", date);
             editor.putString(get_init_input + urls[url], data);
             editor.apply();
             index++;
         }
+    }
+
+    public void updateDate(String value){
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        editor.putString("date", value);
+
+        editor.commit();
     }
 
     public void getStat(final int index){
@@ -559,6 +568,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 date = dataSnapshot.getValue(String.class);
+                updateDate(date);
             }
 
             @Override
