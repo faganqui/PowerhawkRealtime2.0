@@ -233,6 +233,8 @@ public class MainActivity extends AppCompatActivity {
             TextView title = new TextView(this);
             TextView content = new TextView(this);
 
+            title.setTextColor(Color.BLACK);
+
             title.setText(row_text);
             switch (row_text){
                 case "Address: ":
