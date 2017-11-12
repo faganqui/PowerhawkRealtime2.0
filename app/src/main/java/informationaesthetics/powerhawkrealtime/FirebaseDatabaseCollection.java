@@ -14,8 +14,6 @@ import com.google.firebase.database.ValueEventListener;
 
 public class FirebaseDatabaseCollection extends Service {
 
-
-
     public FirebaseDatabaseCollection() {
     }
 

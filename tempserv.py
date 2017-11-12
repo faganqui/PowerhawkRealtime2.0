@@ -1,11 +1,37 @@
-from pyfcm import FCMNotification
+import socket
+import struct
+import time
  
-push_service = FCMNotification(api_key="AAAAorfeITw:APA91bHYChN3fw1SkXgECcgVwg59ID0lV04HOC4o9UdsFJat7QgvUIYSrvfS-4o-2bwX9--dISycYyHNoMBV_RyQanWOjL0JvY4Rzt0PLuCgvdi9jgt9jjiDAn0n0RL7Yy5a50pdAC-i")
+# Create a TCP/IP socket
+TCP_IP = '6312.triacta.com'
+TCP_PORT = 502
+BUFFER_SIZE = 32
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect((TCP_IP, TCP_PORT))
  
-registration_id = "cStX6wV7uAA:APA91bEPTtGi2paJPtPlz3tBwrWnueiAYWc7I29hkilekbPH8kxwqDNOdIMijkGNSHEowAtJXSPX_cygHYWlDgEcqN0EvdPW8Nx_98aj1QsG2qEKUDCxxW6Ptm1wEtd2hw_gtrx1"
-message_title = "Uber update"
-message_body = "Hi john, your customized news for today is ready"
-result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title, message_body=message_body)
+try:
+    # Switch Plug On then Off
+    unitId = 16 # Plug Socket
+    functionCode = 5 # Write coil
  
-print (result)
+    print("\nSwitching Plug ON...")
+    coilId = 1
+    req = struct.pack('12B', 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, int(unitId), int(functionCode), 0x00, int(coilId), 0xff, 0x00)
+    sock.send(req)
+    print("TX: (%s)" %req)
+    rec = sock.recv(BUFFER_SIZE)
+    print("RX: (%s)" %rec)
+    time.sleep(2)
  
+    print("\nSwitching Plug OFF...")
+    coilId = 2
+    req = struct.pack('12B', 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, int(unitId), int(functionCode), 0x00, int(coilId), 0xff, 0x00)
+    sock.send(req)
+    print("TX: (%s)" %req)
+    rec = sock.recv(BUFFER_SIZE)
+    print("RX: (%s)" %rec)
+    time.sleep(2)
+ 
+finally:
+    print('\nCLOSING SOCKET')
+    sock.close()

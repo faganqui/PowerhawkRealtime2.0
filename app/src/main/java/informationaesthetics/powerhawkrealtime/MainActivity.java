@@ -42,6 +42,7 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.jjoe64.graphview.series.Series;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -210,7 +211,8 @@ public class MainActivity extends AppCompatActivity {
             int column = Integer.valueOf(info_string.split(",")[2]);
             int url =Integer.valueOf( info_string.split(",")[0]);
 
-            if(i == url) {
+            //if i in url for active or reactive
+            if(i == url || i == url-1) {
                 LinearLayout item = makeItemOnRow(url, row, column);
                 extraLayout.addView(item);
             }
@@ -286,10 +288,20 @@ public class MainActivity extends AppCompatActivity {
         final Spinner rowsSpinner = new Spinner(this);
         final Spinner columnsSpinner = new Spinner(this);
 
+        rowsSpinner.setBackgroundResource(R.drawable.spinnerback);
+        columnsSpinner.setBackgroundResource(R.drawable.spinnerback);
+
         rowsSpinner.setAdapter(new ArrayAdapter<String>(getApplicationContext(),
                 android.R.layout.simple_spinner_dropdown_item,rows[i].split(";")));
+
+        //add columns from each page
+        String[] temp_cols = new String[columns[i].split(";").length + columns[i+1].split(";").length ];
+
+        System.arraycopy(columns[i].split(";"), 0, temp_cols, 0, columns[i].split(";").length);
+        System.arraycopy(columns[i+1].split(";"), 0, temp_cols, columns[i].split(";").length, columns[i+1].split(";").length);
+
         columnsSpinner.setAdapter(new ArrayAdapter<String>(getApplicationContext(),
-                android.R.layout.simple_spinner_dropdown_item,columns[i].split(";")));
+                android.R.layout.simple_spinner_dropdown_item,temp_cols));
 
         Button confirmButton = new Button(this);
         confirmButton.setText("+");
@@ -297,21 +309,24 @@ public class MainActivity extends AppCompatActivity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int url = v.getId() - 420;
+                int url_layout = v.getId() - 420;
+                int actual_url = url_layout;
                 int row = rowsSpinner.getSelectedItemPosition();
                 int column = columnsSpinner.getSelectedItemPosition();
-                addSeriesToGraph(url,row,column);
-                LinearLayout observedItem = makeItemOnRow(url,row,column);
 
-                /*
-                if (extraStuff[url] != null){
-                    extraStuff[url] += row + "," + column + ";";
-                } else {
-                    extraStuff[url] = "";
-                    extraStuff[url] += row + "," + column + ";";
-                }*/
+                //check if active or reactive page
+                try{
+                    //active page
+                    String test = columns[url_layout].split(";")[column];
+                }catch (Exception e){
+                    //reactive page
+                    column = column - columns[url_layout].split(";").length;
+                    actual_url += 1;
+                }
 
-                LinearLayout extraStuff = (LinearLayout) findViewById(520+url);
+                addSeriesToGraph(actual_url,row,column);
+                LinearLayout observedItem = makeItemOnRow(actual_url,row,column);
+                LinearLayout extraStuff = (LinearLayout) findViewById(520+url_layout);
                 extraStuff.addView(observedItem);
 
                 labelCount++;
@@ -388,9 +403,23 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < urls.length; i++) {
             rows[i] = sharedPref.getString(get_rows + urls[i], "");
             columns[i] = sharedPref.getString(get_columns + urls[i], "");
+
+            //add acctive/reactive labels for elements
+            String[] tempcol = columns[i].split(";");
+            columns[i] = "";
+            for(int j = 0; j < tempcol.length; j++){
+                if(tempcol[j].toLowerCase().contains("element")){
+
+                    tempcol[j] += (i%2==0 ? "(Watts) " : "(VAR) ");
+                }
+                columns[i] += tempcol[j] + ";";
+            }
+            columns[i] = columns[i].substring(0, columns[i].length() - 1);
+
             titles[i] = sharedPref.getString(get_title + urls[i], "");
             data_arrays[i] = sharedPref.getString(get_init_input + urls[i], "");
         }
+
     }
 
     public LineGraphSeries make_series(ArrayList<Double> data){
