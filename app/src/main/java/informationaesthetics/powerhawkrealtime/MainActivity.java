@@ -6,7 +6,11 @@ import android.app.job.JobScheduler;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -43,6 +47,7 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 import com.jjoe64.graphview.series.Series;
 
 import java.lang.reflect.Array;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -91,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
     int index = 0; // to set up all variables
     int readCountDatabase = 0;
     String date = ""; // keeps track of last time we read from database
-    String stats = "data_array";
+    String stats = "recent_data";
     String server;
     Boolean hasNextStat = false;
     String result;
@@ -154,10 +159,37 @@ public class MainActivity extends AppCompatActivity {
         main.addView(actual_header);
     }
 
+    public Bitmap colorize(Bitmap srcBmp, int dstColor) {
+
+        int width = srcBmp.getWidth();
+        int height = srcBmp.getHeight();
+
+        float srcHSV[] = new float[3];
+        float dstHSV[] = new float[3];
+
+        Bitmap dstBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                int pixel = srcBmp.getPixel(col, row);
+                int alpha = Color.alpha(pixel);
+                Color.colorToHSV(pixel, srcHSV);
+                Color.colorToHSV(dstColor, dstHSV);
+
+                // If it area to be painted set only value of original image
+                dstHSV[2] = srcHSV[2];  // value
+                dstBitmap.setPixel(col, row, Color.HSVToColor(alpha, dstHSV));
+            }
+        }
+
+        return dstBitmap;
+    }
+
     protected void buildLayout(){
         //build the layout
         LinearLayout main = (LinearLayout) findViewById(R.id.main_layout);
         main.removeAllViews();
+        main.setBackgroundResource(R.color.colorBackGroundNew);
 
         setHeader();
 
@@ -262,11 +294,12 @@ public class MainActivity extends AppCompatActivity {
                 case "kwh delivered: ":
                     int kwh_index = Arrays.asList(columns[i].split(";")).indexOf(" kWh delivered ");
                     if (kwh_index != -1 && kwh_index < matrix_array[i].getWidth()) {
-                        int total_kwh = 0;
+                        double total_kwh = 0;
                         for (int j = 0; j < matrix_array[i].getHeight(); j++) {
                             total_kwh += matrix_array[i].get_recent_item(j, kwh_index);
                         }
-                        content.setText(String.valueOf(total_kwh));
+                        DecimalFormat df = new DecimalFormat("#.####");
+                        content.setText(df.format(total_kwh));
                     } else {
                         content.setText("not found");
                     }
@@ -305,6 +338,8 @@ public class MainActivity extends AppCompatActivity {
 
         Button confirmButton = new Button(this);
         confirmButton.setText("+");
+        RelativeLayout.LayoutParams unit_lp = new RelativeLayout.LayoutParams(150, 150);
+        confirmButton.setLayoutParams(unit_lp);
         confirmButton.setId(420+i);
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -344,11 +379,17 @@ public class MainActivity extends AppCompatActivity {
         observedItem.setOrientation(LinearLayout.HORIZONTAL);
         TextView itemText = new TextView(getApplicationContext());
         itemText.setText(rows[url].split(";")[row] + ", " + columns[url].split(";")[column] + ": " + matrix_array[url].get_recent_item(row, column));
-        itemText.setTextColor(getResources().getColor(COLORS_ARRAY[(url+row+column)%COLORS_ARRAY.length]));
+        itemText.setTextColor(Color.BLACK);
 
         Button removeButton = new Button(getApplicationContext());
         removeButton.setText("-");
-        removeButton.setBackgroundResource(R.drawable.btndefault);
+        RelativeLayout.LayoutParams unit_lp = new RelativeLayout.LayoutParams(150, 150);
+        removeButton.setLayoutParams(unit_lp);
+
+        Bitmap background = BitmapFactory.decodeResource(this.getResources(),
+                R.drawable.btndefault);
+
+        removeButton.setBackground(new BitmapDrawable(colorize(background, getResources().getColor(COLORS_ARRAY[(url+row+column)%COLORS_ARRAY.length]))));
         removeButton.setId(720 + getUniqueLabel(url,row,column));
         removeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -381,7 +422,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getSharedPreferences() {
-        SharedPreferences sharedPref = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
+        sharedPref = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
         urls = sharedPref.getString("urls", "").split("URLSPLIT");
         date = sharedPref.getString("date", "");
 
@@ -448,6 +489,7 @@ public class MainActivity extends AppCompatActivity {
         graphView.getViewport().setXAxisBoundsManual(true);
         graphView.getViewport().setScrollable(true);
         graphView.getViewport().setScalable(true);
+        graphView.setBackgroundResource(R.drawable.bordergraph);
         graph = graphView;
 
         GridLabelRenderer gridLabel = graph.getGridLabelRenderer();
@@ -615,9 +657,11 @@ public class MainActivity extends AppCompatActivity {
                 String value = dataSnapshot.getValue(String.class);
                 result = value;
 
+                String old = sharedPref.getString(get_init_input+urls[index], "");
+
                 SharedPreferences.Editor editor = sharedPref.edit();
                 //puts the read value in shared pref
-                editor.putString(get_init_input+urls[index], result);
+                editor.putString(get_init_input+urls[index], old+result);
                 editor.apply();
 
                 //calls to collect data after previous data is read
@@ -625,7 +669,7 @@ public class MainActivity extends AppCompatActivity {
                 if (index <= urls.length) {
                     collectAllData();
                 } else {
-                    updateData(value, index);
+                    updateData(old+value, index);
                 }
             }
 
