@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/first_set_up"
-    tools:context="informationaesthetics.powerhawkrealtime.FirstTimeSetupActivity">
+    tools:context="informationaesthetics.powerhawkrt.FirstTimeSetupActivity">
 
     <EditText
         android:layout_width="match_parent"

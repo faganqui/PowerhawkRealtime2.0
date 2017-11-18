@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="informationaesthetics.powerhawkrealtime">
+    package="informationaesthetics.powerhawkrt">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -11,24 +11,24 @@
         android:roundIcon="@drawable/icon_official"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".StartupActivity" />
-        <activity android:name=".URLHandlerActivity" />
-        <activity android:name=".LoginActivity" />
+        <activity android:name="informationaesthetics.powerhawkrt.StartupActivity" />
+        <activity android:name="informationaesthetics.powerhawkrt.URLHandlerActivity" />
+        <activity android:name="informationaesthetics.powerhawkrt.LoginActivity" />
         <activity
-            android:name=".SettingsActivity"
+            android:name="informationaesthetics.powerhawkrt.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:theme="@style/PreferencesTheme" />
         <activity
-            android:name=".ServerActivity"
+            android:name="informationaesthetics.powerhawkrt.ServerActivity"
             android:label="@string/title_activity_server"
             android:theme="@style/AppTheme" />
 
-        <service android:name=".FirebaseMessageService">
+        <service android:name="informationaesthetics.powerhawkrt.FirebaseMessageService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <service android:name=".BackGroundNotification">
+        <service android:name="informationaesthetics.powerhawkrt.BackGroundNotification">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
@@ -42,7 +42,7 @@
             android:resource="@color/colorFour" />
 
         <activity
-            android:name=".FirebaseLoginActivity"
+            android:name="informationaesthetics.powerhawkrt.FirebaseLoginActivity"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,20 +51,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoadFromDatabase"
+            android:name="informationaesthetics.powerhawkrt.LoadFromDatabase"
             android:label="@string/title_activity_load_from_database"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".FirstTimeSetupActivity"
+            android:name="informationaesthetics.powerhawkrt.FirstTimeSetupActivity"
             android:label="@string/title_activity_first_time_setup"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".MainActivity"
+            android:name="informationaesthetics.powerhawkrt.MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme" />
 
         <service
-            android:name=".FirebaseDatabaseCollection"
+            android:name="informationaesthetics.powerhawkrt.FirebaseDatabaseCollection"
             android:enabled="true"
             android:exported="true"></service>
     </application>

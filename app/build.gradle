@@ -12,10 +12,10 @@ android {
     compileSdkVersion 25
     buildToolsVersion "26.0.1"
     defaultConfig {
-        applicationId "informationaesthetics.powerhawkrealtime"
+        applicationId "informationaesthetics.powerhawkrt"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 21
+        versionCode 1
         versionName '0.3.0.5'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

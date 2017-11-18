@@ -1,55 +1,27 @@
 {
   "project_info": {
-    "project_number": "698869489980",
-    "firebase_url": "https://powerhawk-real-time.firebaseio.com",
-    "project_id": "powerhawk-real-time",
-    "storage_bucket": "powerhawk-real-time.appspot.com"
+    "project_number": "62716838688",
+    "firebase_url": "https://powerhawk-real-time-6771a.firebaseio.com",
+    "project_id": "powerhawk-real-time-6771a",
+    "storage_bucket": "powerhawk-real-time-6771a.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:698869489980:android:09d0d5a458aa58bc",
+        "mobilesdk_app_id": "1:62716838688:android:0e2ac3546ade7aae",
         "android_client_info": {
-          "package_name": "informationaesthetics.powerhawkrealtime"
+          "package_name": "informationaesthetics.powerhawkrt"
         }
       },
       "oauth_client": [
         {
-          "client_id": "698869489980-pecvg1ndm0r91to0n490q93lia0981rd.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "informationaesthetics.powerhawkrealtime",
-            "certificate_hash": "fe4541abecce8a42da5ee5633d5d87dbc35db3cf"
-          }
-        },
-        {
-          "client_id": "698869489980-qtrrdt0fhu1a6lkkrf0bidk70vjrgtqs.apps.googleusercontent.com",
-          "client_type": 3
-        },
-        {
-          "client_id": "698869489980-8dufr0lt03lvj2p9glb0vic5j93jak1b.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "informationaesthetics.powerhawkrealtime",
-            "certificate_hash": "e5b5a60b812cc7cdb2ed3a1ee53cea5fee7b67c9"
-          }
-        },
-        {
-          "client_id": "698869489980-8d0jhavhguubest1o3mrcdhihi5jjq4j.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "informationaesthetics.powerhawkrealtime",
-            "certificate_hash": "ff7c24729163b41cd28f2e3d510ddf45ecfb6545"
-          }
-        },
-        {
-          "client_id": "698869489980-9fgj0so4juhmub7fmi15lnka2cqdi4fm.apps.googleusercontent.com",
+          "client_id": "62716838688-9mjq70698ik8hjj7sjiqve2rdthomggf.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBqNPBbmXeKizkwZIrzpbSqz_X5sVvjkmo"
+          "current_key": "AIzaSyCv6G8TURHbB9J7GrYvpbHps1o7C2I7huI"
         }
       ],
       "services": {
@@ -57,13 +29,8 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "698869489980-qtrrdt0fhu1a6lkkrf0bidk70vjrgtqs.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "status": 1,
+          "other_platform_oauth_client": []
         },
         "ads_service": {
           "status": 2

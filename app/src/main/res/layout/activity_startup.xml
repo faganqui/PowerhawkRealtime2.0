@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:background="@color/colorBackGroundNew"
     android:id="@+id/startupLayout"
-    tools:context="informationaesthetics.powerhawkrealtime.StartupActivity">
+    tools:context="informationaesthetics.powerhawkrt.StartupActivity">
 
     <ImageView
         android:layout_width="wrap_content"

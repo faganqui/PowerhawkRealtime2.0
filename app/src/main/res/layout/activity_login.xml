@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorBackGroundNew"
     android:orientation="vertical"
-    tools:context="informationaesthetics.powerhawkrealtime.LoginActivity">
+    tools:context="informationaesthetics.powerhawkrt.LoginActivity">
 
     <ImageView
         android:id="@+id/imageView5"

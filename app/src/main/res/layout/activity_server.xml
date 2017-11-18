@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/serverid"
-    tools:context="informationaesthetics.powerhawkrealtime.ServerActivity">
+    tools:context="informationaesthetics.powerhawkrt.ServerActivity">
 
 
     <ImageView
