@@ -100,9 +100,19 @@ public class FirstTimeSetupActivity extends AppCompatActivity implements View.On
         switch(view.getId()){
             case (R.id.connectToServer):
                 //Load everything into shared prefs
+                SharedPreferences sharedPref = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+
                 server = server_entry.getText().toString();
-                setLoadingScreen();
-                setUpEverything(1, server);
+                editor.putString("server",server);
+                editor.commit();
+
+                Intent intent = new Intent(this, LoadFromDatabase.class);
+                startActivity(intent);
+
+
+                //setLoadingScreen();
+                //setUpEverything(1, server);
         }
     }
 

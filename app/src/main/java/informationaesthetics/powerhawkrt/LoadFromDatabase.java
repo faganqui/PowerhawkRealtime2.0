@@ -20,6 +20,8 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -74,9 +76,6 @@ public class LoadFromDatabase extends AppCompatActivity {
         sharedPref = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
         server = sharedPref.getString("server", "");
 
-        //todo : remove this
-        server = "99.227.134.44";
-
         new connectToServer().execute(server);
 
         stat_array[0] = "DATA";
@@ -104,14 +103,13 @@ public class LoadFromDatabase extends AppCompatActivity {
 
     public void collectAllData(){
         //display % of download completed
-        String x= result;
         urls = (result.split("URLSPLIT").length > 1) ? remove_dupes(result.split("URLSPLIT")) : urls;
 
-        loadingText.setText(String.format("Session started\nloading data - %1$.2f",(Double.valueOf(index)/Double.valueOf(stat_array.length) * Double.valueOf(urls.length - 1)) *100) + "%");
+        loadingText.setText(String.format("Session started\nloading data - %1$.2f",((Double.valueOf(index) + Double.valueOf(stat_array.length)*Double.valueOf(url_index))/(Double.valueOf(stat_array.length) * Double.valueOf(urls.length))) *100) + "%");
 
         //breaks if we've collected all the data
         if(index == stat_array.length){
-            if(url_index < urls.length-1){
+            if(url_index < urls.length){
                 url_index++;
                 index = 0;
             }else {
@@ -126,22 +124,30 @@ public class LoadFromDatabase extends AppCompatActivity {
             if(url_index == -1){
                 //first time is urls we do this special
                 String url_string = "";
+                Arrays.sort(urls);
                 for(String url : urls){
-                    url_string += url + ";";
+                    url_string += url + "URLSPLIT";
                 }
                 editor.putString("URLS", url_string);
+                editor.putString("SERVERMAC", server_mac);
+                editor.putString("server", server);
+                editor.apply();
                 url_index++;
             }else {
                 //puts the read value in shared pref
                 editor.putString(stripper(urls[url_index]) + stat_array[index], result);
                 editor.apply();
                 index++;
+                if ( index == stat_array.length ){
+                    url_index++;
+                    index = 0;
+                }
                 hasNextStat = false;
             }
         }
 
         //retrieves each stat value from database
-        if(index < stat_array.length) {
+        if(index < stat_array.length && url_index < urls.length) {
             getStat(stat_array[index], urls[url_index]);
         } else {
             finishLoading();

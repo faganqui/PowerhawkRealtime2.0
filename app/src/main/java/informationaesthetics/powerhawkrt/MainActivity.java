@@ -44,7 +44,7 @@ import java.util.Map;
 
 import static java.lang.Math.min;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     //static variables
     public static int[] COLORS_ARRAY = {R.color.colorOne, R.color.colorTwo, R.color.colorThree, R.color.colorFour, R.color.colorTen , R.color.colorFive, R.color.colorSix,R.color.colorNine, R.color.colorSeven, R.color.colorEight};
@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
     //useful variables for interface
     Map<Integer, Series> currentlyDisplayedSeries = new HashMap<>(); //holds all the series displayed on the graph
     Map<Integer, String> currentlyDisplayedSeriesInfo = new HashMap<>();
+    Map<Integer, Series> currentlyDisplayedSeriesMinutes = new HashMap<>();
+    Map<Integer, Series> currentlyDisplayedSeriesHours = new HashMap<>();
     Integer labelCount = 0; //keeps track of how of how many labels there are
     //String[] extraStuff; // string representation of labels of graph
 
@@ -79,14 +81,20 @@ public class MainActivity extends AppCompatActivity {
     String[] data_arrays_minutes; // holds all the data temporarily
     String[] data_arrays_hours; // holds all the data temporarily
     MatrixArray[] matrix_array; // holds all the data in an easier-to-acess kind of way
+    MatrixArray[] matrix_array_minutes; // holds all the data in an easier-to-acess kind of way
+    MatrixArray[] matrix_array_hours; // holds all the data in an easier-to-acess kind of way
 
 
     //variables for database
+    int sec_min_hours = 0;
     int index = 0; // to set up all variables
+    int stats_index = 0; //also to help set up all variables
     int readCountDatabase = 0;
+    String[] stat_array = new String[4];
     String date = ""; // keeps track of last time we read from database
     String stats = "recent_data";
     String server;
+    String mac;
     Boolean hasNextStat = false;
     String result;
     SharedPreferences sharedPref;
@@ -100,8 +108,18 @@ public class MainActivity extends AppCompatActivity {
         sharedPref = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
         database = FirebaseDatabase.getInstance();
 
+        //setup stat array
+        stat_array[0] = "DATA";
+        stat_array[1] = "DATAMINUTES";
+        stat_array[2] = "DATAHOURS";
+        stat_array[3] = "HEADERNAMES";
+
         //load the data into preferences
         getSharedPreferences();
+
+        //setup button
+        Button button = (Button)findViewById(R.id.change_min_hour_sec);
+        button.setOnClickListener(this);
 
         //set up matrix
         setUpMatricies();
@@ -264,13 +282,13 @@ public class MainActivity extends AppCompatActivity {
                     content.setText(urls[i].split("/")[2]);  //may need to update this for now hides active/reactive label
                     break;
                 case "Unit: ":
-                    content.setText(titles[i]);
+                    content.setText("temp");//titles[i]);
                     break;
                 case "Watts: ":
-                    int watt_index = Arrays.asList(columns[i].split(";")).indexOf(" Watts ");
+                    int watt_index = Arrays.asList(columns[i].split(";")).indexOf(" watts ");
 
                     if (watt_index == -1){
-                        watt_index = Arrays.asList(columns[i].split(";")).indexOf(" W ");
+                        watt_index = Arrays.asList(columns[i].split(";")).indexOf(" w ");
                     }
 
                     int total_watts = 0;
@@ -281,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
                     content.setText(String.valueOf(total_watts));
                     break;
                 case "kwh delivered: ":
-                    int kwh_index = Arrays.asList(columns[i].split(";")).indexOf(" kWh delivered ");
+                    int kwh_index = Arrays.asList(columns[i].split(";")).indexOf(" kwh delivered ");
                     if (kwh_index != -1 && kwh_index < matrix_array[i].getWidth()) {
                         double total_kwh = 0;
                         for (int j = 0; j < matrix_array[i].getHeight(); j++) {
@@ -394,6 +412,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void setUpMatricies(){
+
         //set up matrices
         for (int i = 0; i < data_arrays.length; i ++){
             try {
@@ -408,12 +427,45 @@ public class MainActivity extends AppCompatActivity {
                 // theMatrix = new MatrixArray(initial_input);
             }
         }
+
+        //set up matrices
+        for (int i = 0; i < data_arrays_minutes.length; i ++){
+            try {
+                String[] inputs = data_arrays_minutes[i].split("!");
+                matrix_array_minutes[i] = new MatrixArray(inputs[0]);
+                int count = 1;
+                while (count < min(inputs.length - 1, 100)){
+                    matrix_array_minutes[i].add_matrix(inputs[count]);
+                    count++;
+                }
+            } catch (Exception e){
+                // theMatrix = new MatrixArray(initial_input);
+            }
+        }
+
+        //set up matrices
+        for (int i = 0; i < data_arrays_hours.length; i ++){
+            try {
+                String[] inputs = data_arrays_hours[i].split("!");
+                matrix_array_hours[i] = new MatrixArray(inputs[0]);
+                int count = 1;
+                while (count < min(inputs.length - 1, 100)){
+                    matrix_array_hours[i].add_matrix(inputs[count]);
+                    count++;
+                }
+            } catch (Exception e){
+                // theMatrix = new MatrixArray(initial_input);
+            }
+        }
+
     }
 
     private void getSharedPreferences() {
         sharedPref = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
-        urls = sharedPref.getString("urls", "").split("URLSPLIT");
+        urls = sharedPref.getString("URLS", "").split("URLSPLIT");
         date = sharedPref.getString("date", "");
+        mac = sharedPref.getString("SERVERMAC", "");
+        server = sharedPref.getString("server", "");
 
         if (first_read) {
             headers = new LinearLayout[urls.length];
@@ -423,47 +475,72 @@ public class MainActivity extends AppCompatActivity {
             titles = new String[urls.length];
            // extraStuff = new String[urls.length];
             matrix_array = new MatrixArray[urls.length];
+            matrix_array_minutes = new MatrixArray[urls.length];
+            matrix_array_hours = new MatrixArray[urls.length];
             data_arrays = new String[urls.length];
+            data_arrays_minutes = new String[urls.length];
+            data_arrays_hours = new String[urls.length];
             first_read = false;
         }
 
-        //todo: collect this automatically
-        server = sharedPref.getString("server", "");
-
         for (int i = 0; i < urls.length; i++) {
+            for (String stat : stat_array){
+                switch (stat) {
+                    case "HEADERNAMES":
+                        rows[i] = sharedPref.getString(stripper(urls[i]) + stat, "").split(";")[0].replace(",", ";");
+                        columns[i] = sharedPref.getString(stripper(urls[i]) + stat, "").split(";")[1];
+
+                        //add acctive/reactive labels for elements
+                        String[] tempcol = columns[i].split(",");
+                        columns[i] = "";
+                        for(int j = 0; j < tempcol.length; j++){
+                            if(tempcol[j].toLowerCase().contains("element")){
+
+                                tempcol[j] += (i%2==0 ? " (Watts)" : " (VAR)");
+                            }
+                            columns[i] += " " + tempcol[j] + " ;";
+                        }
+                        columns[i] = columns[i].substring(0, columns[i].length() - 1);
+                        break;
+                    case "DATA":
+                        data_arrays[i] = sharedPref.getString(stripper(urls[i]) + stat, "");
+                        break;
+                    case "DATAMINUTES":
+                        data_arrays_minutes[i] = sharedPref.getString(stripper(urls[i]) + stat, "");
+                        break;
+                    case "DATAHOURS":
+                        data_arrays_hours[i] = sharedPref.getString(stripper(urls[i]) + stat, "");
+                        break;
+                }
+            }
+
+            /*
             rows[i] = sharedPref.getString(get_rows + urls[i], "");
             columns[i] = sharedPref.getString(get_columns + urls[i], "");
-
-            //add acctive/reactive labels for elements
-            String[] tempcol = columns[i].split(";");
-            columns[i] = "";
-            for(int j = 0; j < tempcol.length; j++){
-                if(tempcol[j].toLowerCase().contains("element")){
-
-                    tempcol[j] += (i%2==0 ? "(Watts) " : "(VAR) ");
-                }
-                columns[i] += tempcol[j] + ";";
-            }
-            columns[i] = columns[i].substring(0, columns[i].length() - 1);
-
             titles[i] = sharedPref.getString(get_title + urls[i], "");
             data_arrays[i] = sharedPref.getString(get_init_input + urls[i], "");
-            data_arrays[i] = sharedPref.getString(get_init_input + urls[i], "");
-            data_arrays[i] = sharedPref.getString(get_init_input + urls[i], "");
+            */
+
         }
 
     }
 
-    public LineGraphSeries make_series(ArrayList<Double> data){
+    public String stripper(String og){
+        //returns og without the following characters:
+        // . / :
+        return og.replace(":", "").replace(".", "").replace("/", "");
+    }
+
+    public LineGraphSeries make_series(ArrayList<Double> data, int type){
 
         int i = 0;
-        int x = -TIMER_UPDATE_RATE*(data.size()-1);
+        int x = -(type==0 ? TIMER_UPDATE_RATE : 1)*(data.size()-1);
         DataPoint[] values = new DataPoint[data.size()];
 
         while (i < data.size()){  //maybe debug here?
 
             values[i] = new DataPoint(x, (data.get(i)));
-            x = x+TIMER_UPDATE_RATE;
+            x = x+ (type==0 ? TIMER_UPDATE_RATE : 1);
             i++;
         }
 
@@ -488,18 +565,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addSeriesToGraph(int url, int row, int column){
-        LineGraphSeries series = make_series(matrix_array[url].get_all_items(row,column));
+        LineGraphSeries series = make_series(matrix_array[url].get_all_items(row,column), 0);
         series.setColor(getResources().getColor(COLORS_ARRAY[(url+row+column)%10]));
         String title = urls[url] + rows[url].split(";")[row] + columns[url].split(";")[column];
         series.setTitle(title);
+
+        LineGraphSeries seriesminutes = make_series(matrix_array_minutes[url].get_all_items(row,column), 1);
+        series.setColor(getResources().getColor(COLORS_ARRAY[(url+row+column)%10]));
+        series.setTitle(title);
+
+        LineGraphSeries serieshours = make_series(matrix_array_hours[url].get_all_items(row,column), 2);
+        series.setColor(getResources().getColor(COLORS_ARRAY[(url+row+column)%10]));
+        series.setTitle(title);
+
         currentlyDisplayedSeries.put(getUniqueLabel(url,row,column), series);
+        currentlyDisplayedSeriesMinutes.put(getUniqueLabel(url,row,column), seriesminutes);
+        currentlyDisplayedSeriesHours.put(getUniqueLabel(url,row,column), serieshours);
         currentlyDisplayedSeriesInfo.put(getUniqueLabel(url,row,column), url + "," + row + "," + column);
-        graph.addSeries(series);
+        switch (sec_min_hours){
+            case 0:
+                graph.addSeries(series);
+                break;
+            case 1:
+                graph.addSeries(seriesminutes);
+                break;
+            case 2:
+                graph.addSeries(serieshours);
+                break;
+        }
+
     }
 
     public void removeSeriesFromGraph(Integer seriesLabel){
-        graph.removeSeries(currentlyDisplayedSeries.get(seriesLabel));
+        switch (sec_min_hours){
+            case 0:
+                graph.removeSeries(currentlyDisplayedSeries.get(seriesLabel));
+                break;
+            case 1:
+                graph.removeSeries(currentlyDisplayedSeriesMinutes.get(seriesLabel));
+                break;
+            case 2:
+                graph.removeSeries(currentlyDisplayedSeriesHours.get(seriesLabel));
+                break;
+        }
         currentlyDisplayedSeries.remove(seriesLabel);
+        currentlyDisplayedSeriesMinutes.remove(seriesLabel);
+        currentlyDisplayedSeriesHours.remove(seriesLabel);
         currentlyDisplayedSeriesInfo.remove(seriesLabel);
     }
 
@@ -545,7 +656,19 @@ public class MainActivity extends AppCompatActivity {
         graph.removeAllSeries();
 
         GridLabelRenderer gridLabel = graph.getGridLabelRenderer();
-        gridLabel.setHorizontalAxisTitle("seconds since " + date);
+        String timescale = "";
+        switch (sec_min_hours){
+            case 0:
+                timescale = "seconds";
+                break;
+            case 1:
+                timescale = "minutes";
+                break;
+            case 2:
+                timescale = "hours";
+                break;
+        }
+        gridLabel.setHorizontalAxisTitle(timescale + " since " + date);
 
         Iterator iterator = currentlyDisplayedSeries.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -556,7 +679,19 @@ public class MainActivity extends AppCompatActivity {
             int row = Integer.valueOf( info_string.split(",")[1] );
             int column = Integer.valueOf(info_string.split(",")[2]);
             int url =Integer.valueOf( info_string.split(",")[0]);
-            LineGraphSeries series = make_series(matrix_array[url].get_all_items(row, column));
+            MatrixArray[] array_to_use;
+            switch (sec_min_hours){
+                case 0:
+                    array_to_use = matrix_array;
+                    break;
+                case 1:
+                    array_to_use = matrix_array_minutes;
+                    break;
+                default:
+                    array_to_use = matrix_array_hours;
+                    break;
+            }
+            LineGraphSeries series = make_series(array_to_use[url].get_all_items(row, column), sec_min_hours);
             series.setColor(getResources().getColor(COLORS_ARRAY[(url+row+column)%10]));
             String title = urls[url] + rows[url].split(";")[row] + columns[url].split(";")[column];
             series.setTitle(title);
@@ -571,7 +706,7 @@ public class MainActivity extends AppCompatActivity {
     public void collectAllData(){
 
         //breaks if we've collected all the data
-        if(index == urls.length){
+        if(stats_index >= stat_array.length){
             readCountDatabase++;
             if (readCountDatabase >= 3) {
                 getSharedPreferences();
@@ -589,12 +724,16 @@ public class MainActivity extends AppCompatActivity {
             editor.putString(get_init_input+urls[index], result);
             editor.apply();
             index++;
+            if (index == urls.length){
+                index = 0;
+                stats_index ++;
+            }
             hasNextStat = false;
         }
 
         //retrieves each stat value from database
-        if(index < urls.length) {
-            getStat(index);
+        if(index < urls.length && stats_index < stat_array.length - 1) {
+            getStat(index, stats_index);
         } else {
             //and now we wait
         }
@@ -618,14 +757,14 @@ public class MainActivity extends AppCompatActivity {
         editor.commit();
     }
 
-    public void getStat(final int index){
+    public void getStat(final int index, final int stats_index){
         //sets result to the current read data
         // sets a specific statistic for a user
-        String refString = "/" + server.replace(".", "") + "/" + urls[index].replaceAll("[./:]", "") + "/" + stats;
+        String refString = "/" + server.replace(".", "") +  mac + "/" + urls[index].replaceAll("[./:]", "") + "/" + stat_array[stats_index];
         DatabaseReference statData = database.getReference(refString);
 
         //get last read date
-        String refString2 = "/" + server.replace(".", "") + "/" + urls[index].replaceAll("[./:]", "") + "/" + "date";
+        String refString2 = "/" + server.replace(".", "") + mac + "/" + urls[index].replaceAll("[./:]", "")+  "/" + "date";
         DatabaseReference statData2 = database.getReference(refString2);
 
         statData2.addValueEventListener(new ValueEventListener() {
@@ -648,11 +787,9 @@ public class MainActivity extends AppCompatActivity {
                 String value = dataSnapshot.getValue(String.class);
                 result = value;
 
-                String old = sharedPref.getString(get_init_input+urls[index], "");
-
                 SharedPreferences.Editor editor = sharedPref.edit();
                 //puts the read value in shared pref
-                editor.putString(get_init_input+urls[index], old+result);
+                editor.putString(stripper(urls[index]) + stat_array[stats_index], result);
                 editor.apply();
 
                 //calls to collect data after previous data is read
@@ -660,7 +797,7 @@ public class MainActivity extends AppCompatActivity {
                 if (index <= urls.length) {
                     collectAllData();
                 } else {
-                    updateData(old+value, index);
+                    //updateData(value, index); not sure if this still being used
                 }
             }
 
@@ -672,4 +809,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.change_min_hour_sec:
+                sec_min_hours = (sec_min_hours + 1) % 3;
+                updateGraph();
+                break;
+        }
+    }
 }
