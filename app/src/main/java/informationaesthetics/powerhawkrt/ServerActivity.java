@@ -1,5 +1,6 @@
 package informationaesthetics.powerhawkrt;
 
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -29,6 +30,15 @@ import java.util.ArrayList;
 
 public class ServerActivity extends AppCompatActivity implements View.OnClickListener {
 
+    public ServerActivity(){
+
+    }
+
+    @Override
+    public void onClick(View v) {
+
+    }
+/*
     //Prefs
     private static final String SHARED_PREFS = "POWERHAWK_URL_SAVED_PREFS";
 
@@ -107,7 +117,7 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
             loading.setBackground(getResources().getDrawable(R.drawable.loadingimg));
             setContentView(loading);
         }
-        */
+        *//*
 
         if (view.getId() >= 200) {
             //reactive button
@@ -533,6 +543,6 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
 
             }
         }
-    }
+    }*/
 
 }

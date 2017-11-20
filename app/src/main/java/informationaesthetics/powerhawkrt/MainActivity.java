@@ -76,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
     String[] urls; // holds the addresses of each URL
     String[] titles; // holds the titles for each meter
     String[] data_arrays; // holds all the data temporarily
+    String[] data_arrays_minutes; // holds all the data temporarily
+    String[] data_arrays_hours; // holds all the data temporarily
     MatrixArray[] matrix_array; // holds all the data in an easier-to-acess kind of way
 
 
@@ -445,6 +447,8 @@ public class MainActivity extends AppCompatActivity {
             columns[i] = columns[i].substring(0, columns[i].length() - 1);
 
             titles[i] = sharedPref.getString(get_title + urls[i], "");
+            data_arrays[i] = sharedPref.getString(get_init_input + urls[i], "");
+            data_arrays[i] = sharedPref.getString(get_init_input + urls[i], "");
             data_arrays[i] = sharedPref.getString(get_init_input + urls[i], "");
         }
 

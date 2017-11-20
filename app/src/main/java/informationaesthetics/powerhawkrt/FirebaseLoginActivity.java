@@ -50,7 +50,7 @@ public class FirebaseLoginActivity extends AppCompatActivity implements View.OnC
 
         if(mAuth.getCurrentUser() != null) {
             //Starts loading the activity immidiatley if we are already signed in
-            Intent load = new Intent(getBaseContext(), MainActivity.class);
+            Intent load = new Intent(getBaseContext(), LoadFromDatabase.class);
             startActivity(load);
         }
 
@@ -123,7 +123,7 @@ public class FirebaseLoginActivity extends AppCompatActivity implements View.OnC
                                 }else{
 
                                     //Intent load = new Intent(getBaseContext(), LoadFromDatabase.class);
-                                    Intent load = new Intent(getBaseContext(), MainActivity.class);
+                                    Intent load = new Intent(getBaseContext(), LoadFromDatabase.class);
                                     startActivity(load);
 
                                 }
