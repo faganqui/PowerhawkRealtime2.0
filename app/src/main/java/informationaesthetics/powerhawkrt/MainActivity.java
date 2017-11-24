@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     // Interface objects
     GraphView graph; // the graph
+    TextView timeSince; //text view that displays under graph
     LinearLayout[] spinners; // holds each layout which holds the spinners
     LinearLayout[] headers;
     Boolean first_read = true;
@@ -117,9 +119,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //load the data into preferences
         getSharedPreferences();
 
-        //setup button
-        Button button = (Button)findViewById(R.id.change_min_hour_sec);
-        button.setOnClickListener(this);
+        //set up text view
+        timeSince = (TextView) findViewById(R.id.time_scale_text);
 
         //set up matrix
         setUpMatricies();
@@ -131,6 +132,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //update data from firebase
         collectAllData();
 
+        //set time scale spinner
+        setUpTimeScaleSpinner();
+
+    }
+
+    public void setUpTimeScaleSpinner(){
+        Spinner timeScaleSpinner = (Spinner)findViewById(R.id.time_scale_spinner);
+
+        String[] spinnerObjects = {"Seconds","Minutes","Hours"};
+
+        timeScaleSpinner.setAdapter(new ArrayAdapter<String>(getApplicationContext(),
+                android.R.layout.simple_spinner_dropdown_item,spinnerObjects));
+
+        timeScaleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                sec_min_hours = position;
+                updateGraph();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     @Override
@@ -199,6 +225,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         main.setBackgroundResource(R.color.colorBackGroundNew);
 
         setHeader();
+        timeSince.setText("since " + date);
 
         for (int i = 0; i < urls.length; i += URL_PAGES_BEING_READ){ //counting by URL_PAGES_BEING_READ since each URL has multiple pages
             // make a linear layout for each URL
@@ -560,8 +587,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         graphView.setBackgroundResource(R.drawable.bordergraph);
         graph = graphView;
 
-        GridLabelRenderer gridLabel = graph.getGridLabelRenderer();
-        gridLabel.setHorizontalAxisTitle("seconds since " + date);
+        //GridLabelRenderer gridLabel = graph.getGridLabelRenderer();
+        //gridLabel.setHorizontalAxisTitle("seconds since " + date);
     }
 
     public void addSeriesToGraph(int url, int row, int column){
@@ -668,7 +695,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 timescale = "hours";
                 break;
         }
-        gridLabel.setHorizontalAxisTitle(timescale + " since " + date);
+        //gridLabel.setHorizontalAxisTitle(timescale + " since " + date);
+        timeSince.setText(" since " + date);
 
         Iterator iterator = currentlyDisplayedSeries.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -812,10 +840,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.change_min_hour_sec:
-                sec_min_hours = (sec_min_hours + 1) % 3;
-                updateGraph();
-                break;
         }
     }
 }

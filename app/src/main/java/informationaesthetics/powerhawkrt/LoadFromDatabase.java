@@ -200,7 +200,6 @@ public class LoadFromDatabase extends AppCompatActivity {
                 //connection refused because its not local host its an emulator, try connecting via my IP
                 Socket soc = new Socket(strings[0], 9002);
 
-
                 DataOutputStream dout = new DataOutputStream(soc.getOutputStream());
                 //sends all the things needed too keep track of alarm
                 dout.writeUTF("SPLITHERE" + safeSendTokenFormatter(FirebaseInstanceId.getInstance().getToken()) + "SPLITHERE" + FirebaseAuth.getInstance().getCurrentUser().getEmail() + "SPLITHERE");

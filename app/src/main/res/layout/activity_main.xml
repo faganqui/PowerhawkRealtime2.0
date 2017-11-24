@@ -34,13 +34,28 @@
         android:layout_weight="4"
         android:id="@+id/main_layout_graph">
     </LinearLayout>
-    <Button
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:onClick="onClick"
-        android:text="change time scale"
-        android:id="@+id/change_min_hour_sec"/>
+        android:orientation="horizontal"
+        android:gravity="center">
 
+        <Spinner
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/time_scale_spinner">
+        </Spinner>
+
+        <TextView
+            android:gravity="center"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/time_scale_text"/>
+
+    </LinearLayout>
 
 </LinearLayout>
