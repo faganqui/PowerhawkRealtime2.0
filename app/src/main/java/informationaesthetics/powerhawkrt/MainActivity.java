@@ -445,10 +445,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             try {
                 String[] inputs = data_arrays[i].split("!");
                 matrix_array[i] = new MatrixArray(inputs[0]);
-                int count = 1;
-                while (count < min(inputs.length - 1, 100)){
+                int count = min(inputs.length - 1, 200);
+                while (count > 0){
                     matrix_array[i].add_matrix(inputs[count]);
-                    count++;
+                    count--;
                 }
             } catch (Exception e){
                 // theMatrix = new MatrixArray(initial_input);
@@ -460,10 +460,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             try {
                 String[] inputs = data_arrays_minutes[i].split("!");
                 matrix_array_minutes[i] = new MatrixArray(inputs[0]);
-                int count = 1;
-                while (count < min(inputs.length - 1, 100)){
+                int count = min(inputs.length - 1, 200);
+                while (count > 0){
                     matrix_array_minutes[i].add_matrix(inputs[count]);
-                    count++;
+                    count--;
                 }
             } catch (Exception e){
                 // theMatrix = new MatrixArray(initial_input);
@@ -475,10 +475,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             try {
                 String[] inputs = data_arrays_hours[i].split("!");
                 matrix_array_hours[i] = new MatrixArray(inputs[0]);
-                int count = 1;
-                while (count < min(inputs.length - 1, 100)){
+                int count = min(inputs.length - 1, 200);
+                while (count > 0 ){
                     matrix_array_hours[i].add_matrix(inputs[count]);
-                    count++;
+                    count--;
                 }
             } catch (Exception e){
                 // theMatrix = new MatrixArray(initial_input);

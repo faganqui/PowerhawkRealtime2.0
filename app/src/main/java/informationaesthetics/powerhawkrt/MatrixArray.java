@@ -56,7 +56,7 @@ public class MatrixArray {
                 rows.add(row);
             }
         }
-        if(time.size() > 100) { //making sure we dont store too much data
+        if(time.size() > 200) { //making sure we dont store too much data
             time.remove(0);
             time.add(rows);
         }else{
