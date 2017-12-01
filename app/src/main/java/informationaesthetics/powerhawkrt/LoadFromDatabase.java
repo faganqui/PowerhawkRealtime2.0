@@ -24,21 +24,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class LoadFromDatabase extends AppCompatActivity {
 
     //Prefs
     private static final String SHARED_PREFS = "POWERHAWK_URL_SAVED_PREFS";
-    // key names for getting information in shared prefs and DB
-    private static final String get_title = "POWERHAWK_TITLE";
-    private static final String get_init_input = "POWERHAWK_OUTPUT";
-    private static final String get_init_input_minutes = "POWERHAWK_OUTPUT_MINS";
-    private static final String get_init_input_hours = "POWERHAWK_OUTPUT_HOURS";
-    private static final String get_rows = "POWERHAWK_ROWS";
-    private static final String get_columns = "POWERHAWK_COLUMNS";
 
     String[] stat_array = new String[4];
     String[] urls;
+
+    String connectToServerResult = "Connection successful\n Session started\n Loading data from database ";
 
     //get database objects
     FirebaseDatabase database;
@@ -76,7 +74,20 @@ public class LoadFromDatabase extends AppCompatActivity {
         sharedPref = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
         server = sharedPref.getString("server", "");
 
-        new connectToServer().execute(server);
+        connectToServer serverattempt = new connectToServer();
+        try {
+            serverattempt.execute(server).get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            connectToServerResult = "Failed to connect to server\n Loading from database ";
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            connectToServerResult = "Failed to connect to server\n Loading from database ";
+            e.printStackTrace();
+        } catch (TimeoutException e){
+            connectToServerResult = "Failed to connect to server\n Loading from database ";
+            e.printStackTrace();
+        }
+
 
         stat_array[0] = "DATA";
         stat_array[1] = "DATAMINUTES";
@@ -105,7 +116,7 @@ public class LoadFromDatabase extends AppCompatActivity {
         //display % of download completed
         urls = (result.split("URLSPLIT").length > 1) ? remove_dupes(result.split("URLSPLIT")) : urls;
 
-        loadingText.setText(String.format("Session started\nloading data - %1$.2f",((Double.valueOf(index) + Double.valueOf(stat_array.length)*Double.valueOf(url_index))/(Double.valueOf(stat_array.length) * Double.valueOf(urls.length))) *100) + "%");
+        loadingText.setText(String.format(connectToServerResult + " - %1$.2f",((Double.valueOf(index) + Double.valueOf(stat_array.length)*Double.valueOf(url_index))/(Double.valueOf(stat_array.length) * Double.valueOf(urls.length))) *100) + "%");
 
         //breaks if we've collected all the data
         if(index == stat_array.length){
