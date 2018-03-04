@@ -1,35 +1,35 @@
 {
   "project_info": {
-    "project_number": "62716838688",
-    "firebase_url": "https://powerhawk-real-time-6771a.firebaseio.com",
-    "project_id": "powerhawk-real-time-6771a",
-    "storage_bucket": "powerhawk-real-time-6771a.appspot.com"
+    "project_number": "255066559488",
+    "firebase_url": "https://powerhawkrealtime.firebaseio.com",
+    "project_id": "powerhawkrealtime",
+    "storage_bucket": "powerhawkrealtime.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:62716838688:android:0e2ac3546ade7aae",
+        "mobilesdk_app_id": "1:255066559488:android:ddecd2b6a392a41e",
         "android_client_info": {
-          "package_name": "informationaesthetics.powerhawkrt"
+          "package_name": "informationaesthetics.com.powerhawkrealtime"
         }
       },
       "oauth_client": [
         {
-          "client_id": "62716838688-ek5nt8jiel0podi6ijm225pnfmv3f9hj.apps.googleusercontent.com",
+          "client_id": "255066559488-fks8vs925v60vdsqg09emksrnusphut0.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "informationaesthetics.powerhawkrt",
-            "certificate_hash": "fe4541abecce8a42da5ee5633d5d87dbc35db3cf"
+            "package_name": "informationaesthetics.com.powerhawkrealtime",
+            "certificate_hash": "797b7cff723bf60ffce612c9417bc44213139c34"
           }
         },
         {
-          "client_id": "62716838688-9mjq70698ik8hjj7sjiqve2rdthomggf.apps.googleusercontent.com",
+          "client_id": "255066559488-ikmganlfv2gj16boqgrhs48gbpiab8os.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCv6G8TURHbB9J7GrYvpbHps1o7C2I7huI"
+          "current_key": "AIzaSyD-9nQencND-VbM0zi28xQt9qmsQpzJ3Dc"
         }
       ],
       "services": {
@@ -40,7 +40,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "62716838688-9mjq70698ik8hjj7sjiqve2rdthomggf.apps.googleusercontent.com",
+              "client_id": "255066559488-ikmganlfv2gj16boqgrhs48gbpiab8os.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

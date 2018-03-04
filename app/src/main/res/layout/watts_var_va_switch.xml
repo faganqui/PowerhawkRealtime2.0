@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_gravity="bottom"
+    android:layout_margin="3dp"
+    android:gravity="bottom">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/watts_button_switch"
+        android:background="@color/grey_accent_light"
+        android:onClick="onClick"
+        android:text="@string/watts"
+        android:layout_weight="1"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/var_button_switch"
+        android:background="@color/grey_accent_light"
+        android:onClick="onClick"
+        android:text="@string/var"
+        android:layout_weight="1"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/va_button_switch"
+        android:background="@color/grey_accent_light"
+        android:text="@string/va"
+        android:onClick="onClick"
+        android:layout_weight="1"/>
+
+</LinearLayout>

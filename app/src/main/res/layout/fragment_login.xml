@@ -1,0 +1,75 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:foregroundGravity="center"
+    android:id="@+id/login_fragment_id"
+    tools:context="informationaesthetics.com.powerhawkrealtime.Fragments.LoginFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_gravity="center_vertical"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name_part_one_caps"
+            android:textSize="26sp"
+            android:textColor="@color/colorPrimaryDark"
+            android:textStyle="bold"
+            android:fontFamily="monospace"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:text="@string/app_name_part_two_caps"
+            android:textSize="24sp"
+            android:textStyle="italic"
+            android:fontFamily="monospace"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="50dp" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:hint="@string/login_fragment_email_field_hint"
+            android:id="@+id/login_fragment_email_field" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:hint="@string/login_fragment_password_field_hint"
+            android:id="@+id/login_fragment_password_field"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/signin_button"
+                android:id="@+id/login_fragment_signin_button"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/signup_button"
+                android:id="@+id/login_fragment_signup_button" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
@@ -6,21 +6,32 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-
-        <item name="android:buttonStyle">@style/RobotoButtonStyle</item>
     </style>
 
-    <style name="PreferencesTheme" parent="Theme.AppCompat">
-        <item name="android:background">@color/colorBackGroundNewForManya</item>
+    <!-- ToolBar -->
+    <style name="ToolBarStyle" parent="AppTheme">
+        <item name="android:title">@string/empty</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
+        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.Light.ActionButton.Overflow</item>
+        <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
-    <style name="RobotoButtonStyle" parent="android:Widget.Holo.Button">
-        <item name="android:background">@drawable/btndefault</item>
-        <item name="android:textColor">@color/colorPrimaryDark</item>
-    </style>
+    <declare-styleable name="ArcProgress">
+        <attr name="arc_progress" format="integer"/>
+        <attr name="arc_angle" format="float"/>
+        <attr name="arc_stroke_width" format="dimension"/>
+        <attr name="arc_max" format="integer"/>
+        <attr name="arc_unfinished_color" format="color"/>
+        <attr name="arc_finished_color" format="color"/>
+        <attr name="arc_text_size" format="dimension"/>
+        <attr name="arc_text_color" format="color"/>
+        <attr name="arc_suffix_text" format="string"/>
+        <attr name="arc_suffix_text_size" format="dimension"/>
+        <attr name="arc_suffix_text_padding" format="dimension"/>
+        <attr name="arc_bottom_text" format="string"/>
+        <attr name="arc_bottom_text_size" format="dimension"/>
+    </declare-styleable>
 
 </resources>

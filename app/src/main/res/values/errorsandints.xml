@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="SUCCESS">1</integer>
+    <integer name="ARRAY_TOO_SHORT">2</integer>
+    <integer name="ADD_SERVER">3</integer>
+    <integer name="REMOVE_SERVER">4</integer>
+    <integer name="SELECT_SERVER">5</integer>
+    <integer name="GO_TO_SERVER">6</integer>
+    <integer name="GO_TO_LOGIN">7</integer>
+    <integer name="GO_TO_ADD_SERVER">8</integer>
+    <integer name="LOGIN">9</integer>
+    <integer name="SIGNUP">10</integer>
+    <integer name="GO_TO_UNIT">11</integer>
+    <integer name="SELECTED_UNIT">12</integer>
+    <integer name="GO_TO_METER">13</integer>
+    <integer name="SELECTED_METER">14</integer>
+</resources>

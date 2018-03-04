@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="GO_TO_SELECTED_SERVER">11</integer>
+</resources>

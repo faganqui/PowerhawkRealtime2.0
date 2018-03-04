@@ -1,0 +1,44 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/add_server_fragment_id"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="25dp"
+    android:layout_height="match_parent"
+    tools:context="informationaesthetics.com.powerhawkrealtime.Fragments.AddServerFragment">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/add_server_header"
+        android:textColor="@color/black"
+        android:textSize="24sp"/>
+    <TextView
+        android:textColor="@color/grey_accent_dark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/add_server_blurb"
+        android:textSize="14sp"/>
+
+    <EditText
+        android:id="@+id/server_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/input_server_name"/>
+
+    <EditText
+        android:id="@+id/server_ip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:digits="0123456789."
+        android:inputType="number"
+        android:hint="@string/input_server_ip"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:id="@+id/add_server_button"
+        android:text="@string/confirm_button_text"/>
+
+</LinearLayout>

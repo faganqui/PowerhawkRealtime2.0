@@ -1,0 +1,80 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="25dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/server_fragment_id"
+    tools:context="informationaesthetics.com.powerhawkrealtime.Fragments.ServerFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border">
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/stealthBomber"
+            android:stretchColumns="1"
+            android:id="@+id/servers_table">
+
+            <TableRow
+                android:background="@color/grey_accent_light"
+                android:layout_margin="3dp"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent">
+
+                <View
+                    android:layout_width="50dp"
+                    android:layout_weight="0"
+                    android:layout_gravity="center_vertical"
+                    android:layout_height="50dp"/>
+
+                <TextView
+                    android:layout_height="50dp"
+                    android:layout_width="fill_parent"
+                    android:gravity="center_vertical"
+                    android:text="@string/servers_header"
+                    android:layout_weight="1"
+                    android:textSize="24sp"/>
+
+                <View
+                    android:layout_height="50dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="0"
+                    android:layout_width="50dp"/>
+
+            </TableRow>
+
+            <TextView
+                android:id="@+id/no_servers_found_text"
+                android:textSize="20sp"
+                android:textColor="@color/grey_accent_dark"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/no_servers_blurb"
+                android:visibility="gone"/>
+
+        </TableLayout>
+    </ScrollView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:clickable="true"
+        android:visibility="visible"
+        app:backgroundTint="@color/colorPrimary"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/plus"
+        android:focusable="true" />
+
+
+</RelativeLayout>

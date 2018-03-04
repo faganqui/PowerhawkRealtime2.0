@@ -1,0 +1,35 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:id="@+id/selected_meter_fragment_id"
+    tools:context="informationaesthetics.com.powerhawkrealtime.Fragments.SelectedMeterFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="25dp"
+        android:orientation="vertical">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="25dp"
+        android:stretchColumns="*"
+        android:background="@drawable/border"
+        android:id="@+id/meter_points_table"/>
+
+    <com.jjoe64.graphview.GraphView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/border"
+        android:layout_weight="1"
+        android:id="@+id/graph_view"/>
+
+    </LinearLayout>
+
+</FrameLayout>

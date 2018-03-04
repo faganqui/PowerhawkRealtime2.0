@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:background="@color/stealthBomber"
+    android:layout_margin="3dp"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
+
+    <TextView
+        android:layout_height="50dp"
+        android:layout_width="fill_parent"
+        android:layout_gravity="center_vertical"
+        android:text="@string/units_header"
+        android:layout_weight="1"
+        android:textSize="24sp"/>
+
+    <com.github.lzyzsd.circleprogress.ArcProgress
+        android:id="@+id/arc_progress_hours"
+        android:background="@color/stealthBomber"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="8dp"
+        custom:arc_progress="55"
+        custom:arc_text_color="@color/black"
+        custom:arc_finished_color="@color/colorPrimary"
+        custom:arc_unfinished_color="@color/stealthBomber"
+        custom:arc_suffix_text=" "
+        custom:arc_text_size="20sp"
+        custom:arc_angle="250"
+        custom:arc_bottom_text_size="13sp"
+        custom:arc_bottom_text=" " />
+
+    <com.github.lzyzsd.circleprogress.ArcProgress
+        android:id="@+id/arc_progress"
+        android:background="@color/stealthBomber"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="8dp"
+        custom:arc_progress="55"
+        custom:arc_text_color="@color/black"
+        custom:arc_finished_color="@color/colorPrimary"
+        custom:arc_unfinished_color="@color/stealthBomber"
+        custom:arc_suffix_text=" "
+        custom:arc_text_size="20sp"
+        custom:arc_angle="250"
+        custom:arc_bottom_text_size="13sp"
+        custom:arc_bottom_text=" " />
+
+</TableRow>
